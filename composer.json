@@ -1,0 +1,16 @@
+{
+    "name": "abdoulaye/maxit-sa",
+    "description": "MaxitSa",
+    "autoload": {
+        "psr-4": {
+            "Abdoulaye\\MaxitSa\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Abdoulaye",
+            "email": "abdoulaye150199@gmail.com"
+        }
+    ],
+    "require": {}
+}
