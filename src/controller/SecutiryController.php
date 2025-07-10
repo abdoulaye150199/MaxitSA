@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
+use App\Core\Validator;
 
 class SecutiryController extends AbstractController {
     public function login()
@@ -12,7 +13,7 @@ class SecutiryController extends AbstractController {
                 $repo = new \App\Repository\UserRepository();
                 $user = $repo->selectByCode($code);
                 if ($user) {
-                    // Met l'utilisateur en session
+
                     $_SESSION['user_id'] = $user->getId();
                     $_SESSION['user'] = [
                         'id' => $user->getId(),
@@ -20,6 +21,15 @@ class SecutiryController extends AbstractController {
                         'prenom' => $user->getPrenom(),
                         'type' => $user->getTypeUser()->value
                     ];
+
+                    Validator::validate('required',$code,'code');
+                    Validator::getErrors();
+
+                    if(Validator::isValid())
+                    {
+                        $this->session->set('code',$code);
+                    }
+
                     header('Location: /accueil');
                     exit;
                 } else {
@@ -40,7 +50,6 @@ class SecutiryController extends AbstractController {
         $this->renderView('code_secret');
     }
 
-    // Implémentation des méthodes abstraites
     public function index() {}
     public function create() {}
     public function store() {}

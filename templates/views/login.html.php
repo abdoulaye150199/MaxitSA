@@ -6,9 +6,16 @@
             </div>
             <h1 class="text-2xl font-bold mb-8 text-center">BIENVENUE SUR VOTRE APPLICATION MAXIT</h1>
         </div>
-        <?php if (!empty($error)): ?>
-            <div class="text-red-500 text-center mb-4"><?= htmlspecialchars($error) ?></div>
+        <?php if (!empty($errors)): ?>
+            <div class="alert alert-danger">
+                <ul>
+                    <?php foreach ($errors as $message): ?>
+                        <li><?= htmlspecialchars($message) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
         <?php endif; ?>
+
         <input
             type="password"
             name="code"
