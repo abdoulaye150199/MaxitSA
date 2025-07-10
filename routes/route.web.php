@@ -18,16 +18,11 @@ $routes = [
     '/code-secret' => [
         'controller' => 'App\\Controller\\UserController',
         'action' => 'codeSecret',
-        'middlewares' => ['hashCodeSecret']
+        'middlewares' => []
     ],
     '/accueil' => [
         'controller' => 'App\\Controller\\UserController', // ou un autre contrôleur
         'action' => 'index', // ou 'accueil' selon ton code
         'middlewares' => []
-    ],
-    '/logout' => [
-        'controller' => 'App\\Controller\\SecutiryController',
-        'action' => 'logout',
-        'middlewares' => []
-    ],
+    ]
 ];

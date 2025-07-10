@@ -12,11 +12,8 @@ return array(
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src/PhpOption'),
     'GrahamCampbell\\ResultType\\' => array($vendorDir . '/graham-campbell/result-type/src'),
     'Dotenv\\' => array($vendorDir . '/vlucas/phpdotenv/src'),
-    'App\\config\\' => array($baseDir . '/app/config'),
-    'App\\Service\\' => array($baseDir . '/src/service'),
     'App\\Repository\\' => array($baseDir . '/src/repository'),
     'App\\Entite\\' => array($baseDir . '/src/entite'),
-    'App\\Core\\' => array($baseDir . '/app/Core'),
     'App\\Controller\\' => array($baseDir . '/src/controller'),
-    'Abdoulaye\\MaxitSa\\' => array($baseDir . '/src'),
+    'App\\' => array($baseDir . '/app'),
 );

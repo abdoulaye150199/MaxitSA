@@ -17,10 +17,6 @@ class Router
             $controller = $route['controller'];
             $action = $route['action'];
 
-            // var_dump($_SESSION);
-            // exit;
-
-            // Middleware
             if (!empty($route['middlewares'])) {
                 Middleware::handle($route['middlewares']);
             }
