@@ -26,6 +26,7 @@ class Middleware
     }
 
 
+
     private static function isClient()
     {
         if ($_SESSION['user']['type'] !== 'CLIENT') {

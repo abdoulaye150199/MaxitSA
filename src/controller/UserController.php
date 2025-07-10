@@ -56,6 +56,7 @@ class UserController extends AbstractController
 
                 unset($_SESSION['register_data']);
 
+
                 header('Location: /login');
                 exit;
             }

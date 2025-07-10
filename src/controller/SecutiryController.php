@@ -12,7 +12,7 @@ class SecutiryController extends AbstractController {
                 $repo = new \App\Repository\UserRepository();
                 $user = $repo->selectByCode($code);
                 if ($user) {
-
+                    // Met l'utilisateur en session
                     $_SESSION['user_id'] = $user->getId();
                     $_SESSION['user'] = [
                         'id' => $user->getId(),
@@ -40,6 +40,7 @@ class SecutiryController extends AbstractController {
         $this->renderView('code_secret');
     }
 
+    // Implémentation des méthodes abstraites
     public function index() {}
     public function create() {}
     public function store() {}

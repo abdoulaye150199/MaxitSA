@@ -33,13 +33,10 @@ class ComposerStaticInitc2bf46368c19608165b4309f82de24c1
         ),
         'A' => 
         array (
-            'App\\config\\' => 11,
-            'App\\Service\\' => 12,
             'App\\Repository\\' => 15,
             'App\\Entite\\' => 11,
-            'App\\Core\\' => 9,
             'App\\Controller\\' => 15,
-            'Abdoulaye\\MaxitSa\\' => 18,
+            'App\\' => 4,
         ),
     );
 
@@ -68,14 +65,6 @@ class ComposerStaticInitc2bf46368c19608165b4309f82de24c1
         array (
             0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
         ),
-        'App\\config\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/app/config',
-        ),
-        'App\\Service\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/src/service',
-        ),
         'App\\Repository\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/repository',
@@ -84,17 +73,13 @@ class ComposerStaticInitc2bf46368c19608165b4309f82de24c1
         array (
             0 => __DIR__ . '/../..' . '/src/entite',
         ),
-        'App\\Core\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/app/Core',
-        ),
         'App\\Controller\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/controller',
         ),
-        'Abdoulaye\\MaxitSa\\' => 
+        'App\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/src',
+            0 => __DIR__ . '/../..' . '/app',
         ),
     );
 
