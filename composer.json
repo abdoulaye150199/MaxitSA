@@ -3,14 +3,23 @@
     "description": "MaxitSa",
     "autoload": {
         "psr-4": {
-            "Abdoulaye\\MaxitSa\\": "src/"
+            "Abdoulaye\\MaxitSa\\": "src/",
+            "App\\Entite\\": "src/entite/",
+            "App\\Service\\": "src/service/",
+            "App\\Repository\\": "src/repository/",
+            "App\\Controller\\": "src/controller/",
+            "App\\config\\": "app/config/",
+            "App\\Core\\": "app/Core/"
         }
-    },
+        },
+    
     "authors": [
         {
             "name": "Abdoulaye",
             "email": "abdoulaye150199@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
 }
