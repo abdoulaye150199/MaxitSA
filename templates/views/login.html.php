@@ -6,10 +6,17 @@
             </div>
             <h1 class="text-2xl font-bold mb-8 text-center">BIENVENUE SUR VOTRE APPLICATION MAXIT</h1>
         </div>
+
+        <?php if (!empty($error)): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-[500px]">
+                <?= htmlspecialchars($error) ?>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($errors)): ?>
-            <div class="alert alert-danger">
-                <ul>
-                    <?php foreach ($errors as $message): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-[500px]">
+                <ul class="list-disc list-inside">
+                    <?php foreach ($errors as $field => $message): ?>
                         <li><?= htmlspecialchars($message) ?></li>
                     <?php endforeach; ?>
                 </ul>
@@ -20,18 +27,20 @@
             type="password"
             name="code"
             placeholder="ENTREZ VOTRE CODE SECRET"
-
-            class="border-2 border-custom-border rounded-lg px-6 py-4 mb-6 w-[500px] text-custom-brown placeholder-custom-border text-center text-lg"
+            value="<?= htmlspecialchars($_POST['code'] ?? '') ?>"
+            class="border-2 <?= isset($errors['code']) ? 'border-red-500' : 'border-custom-border' ?> rounded-lg px-6 py-4 mb-6 w-[500px] text-custom-brown placeholder-custom-border text-center text-lg"
         />
+        
         <button
             type="submit"
-            class="bg-custom-brown text-white font-bold rounded-lg px-6 py-4 w-[500px] text-lg mb-4"
+            class="bg-custom-brown text-white font-bold rounded-lg px-6 py-4 w-[500px] text-lg mb-4 hover:bg-opacity-90 transition-all duration-300"
         >
             SE CONNECTER
         </button>
+        
         <div class="text-right w-[500px]">
             <span class="text-black">j'ai pas de compte !</span>
-            <a href="/sign" class="text-custom-brown">S’inscrire</a>
+            <a href="/sign" class="text-custom-brown hover:underline">S'inscrire</a>
         </div>
     </div>
 </form>

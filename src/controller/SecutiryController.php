@@ -7,13 +7,26 @@ use App\Core\Validator;
 class SecutiryController extends AbstractController {
     public function login()
     {
+        $error = null;
+        $errors = [];
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $code = $_POST['code'] ?? null;
-            if ($code) {
+            // Nettoyer les erreurs précédentes
+            Validator::clearErrors();
+            
+            $code = $_POST['code'] ?? '';
+
+            // Validation
+            Validator::validate('required', $code, 'code', 'Le code secret est obligatoire.');
+            Validator::validate('codeSecret', $code, 'code', 'Le code secret doit contenir exactement 4 chiffres.');
+
+            $errors = Validator::getErrors();
+
+            if (Validator::isValid()) {
                 $repo = new \App\Repository\UserRepository();
                 $user = $repo->selectByCode($code);
+                
                 if ($user) {
-
                     $_SESSION['user_id'] = $user->getId();
                     $_SESSION['user'] = [
                         'id' => $user->getId(),
@@ -22,14 +35,7 @@ class SecutiryController extends AbstractController {
                         'type' => $user->getTypeUser()->value
                     ];
 
-                    Validator::validate('required',$code,'code');
-                    Validator::getErrors();
-
-                    if(Validator::isValid())
-                    {
-                        $this->session->set('code',$code);
-                    }
-
+                    $this->session->set('code', $code);
                     header('Location: /accueil');
                     exit;
                 } else {
@@ -37,8 +43,12 @@ class SecutiryController extends AbstractController {
                 }
             }
         }
+
         $this->layout = 'base.login.html.layout.php';
-        $this->renderView('login', isset($error) ? ['error' => $error] : []);   
+        $this->renderView('login', [
+            'error' => $error,
+            'errors' => $errors
+        ]);   
     }
 
     public function sign() {

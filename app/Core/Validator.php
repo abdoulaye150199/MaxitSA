@@ -33,12 +33,23 @@ class Validator
                 if (!preg_match('/^(1|2)[0-9]{12}$/', $value)) {
                     Validator::addError($field, $message ?? "$value n'est pas un CNI valide.");
                 }
+            },
+
+            "codeSecret" => function ($value, $field, $message = null) {
+                if (!preg_match('/^[0-9]{4}$/', $value)) {
+                    Validator::addError($field, $message ?? "Le code secret doit contenir exactement 4 chiffres.");
+                }
             }
         ];
     }
 
     public static function validate(string $critere, $value, string $field, $message = null, $extra = null)
     {
+        // Initialiser les règles si ce n'est pas déjà fait
+        if (empty(self::$rules)) {
+            new self();
+        }
+
         if (isset(self::$rules[$critere])) {
             if ($critere === "regex" && $extra !== null) {
                 self::$rules[$critere]($value, $field, $extra, $message);
@@ -58,8 +69,23 @@ class Validator
         return empty(self::$errors);
     }
 
+    public static function clearErrors(): void
+    {
+        self::$errors = [];
+    }
+
     private static function addError(string $field, string $message)
     {
         self::$errors[$field] = $message;
+    }
+
+    public static function hasError(string $field): bool
+    {
+        return isset(self::$errors[$field]);
+    }
+
+    public static function getError(string $field): ?string
+    {
+        return self::$errors[$field] ?? null;
     }
 }

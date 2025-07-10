@@ -28,19 +28,25 @@ class UserRepository extends AbstractRepository
 
     public function insert($user): bool
     {
-        $query = 'INSERT INTO users (code, nom, prenom, type_user, adresse, numero_carte_identite, photo_identite_recto, photo_identite_verso) 
-                  VALUES (:code, :nom, :prenom, :type_user, :adresse, :numero_carte_identite, :photo_identite_recto, :photo_identite_verso)';
-        $stmt = $this->pdo->prepare($query);
-        return $stmt->execute([
-            ':code' => $user->getCodeSecret(),
-            ':nom' => $user->getNom(),
-            ':prenom' => $user->getPrenom(),
-            ':type_user' => $user->getTypeUser()->value,
-            ':adresse' => $user->getAdresse(),
-            ':numero_carte_identite' => $user->getNumeroIdentite(),
-            ':photo_identite_recto' => $user->getPhotoCNIrecto(),
-            ':photo_identite_verso' => $user->getPhotoCNIverso(),
-        ]);
+        try {
+            $query = 'INSERT INTO users (code, nom, prenom, type_user, adresse, numero_carte_identite, photo_identite_recto, photo_identite_verso, numero) 
+                      VALUES (:code, :nom, :prenom, :type_user, :adresse, :numero_carte_identite, :photo_identite_recto, :photo_identite_verso, :numero)';
+            $stmt = $this->pdo->prepare($query);
+            return $stmt->execute([
+                ':code' => $user->getCodeSecret(),
+                ':nom' => $user->getNom(),
+                ':prenom' => $user->getPrenom(),
+                ':type_user' => $user->getTypeUser()->value,
+                ':adresse' => $user->getAdresse(),
+                ':numero_carte_identite' => $user->getNumeroIdentite(),
+                ':photo_identite_recto' => $user->getPhotoCNIrecto(),
+                ':photo_identite_verso' => $user->getPhotoCNIverso(),
+                ':numero' => $user->getNumero(),
+            ]);
+        } catch (\PDOException $e) {
+            error_log("Erreur insertion utilisateur: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function delete($id): bool
@@ -62,7 +68,6 @@ class UserRepository extends AbstractRepository
         return [];
     }
 
-
     public function selectByCode($code)
     {
         $stmt = $this->pdo->prepare('SELECT * FROM users WHERE code = :code');
@@ -73,7 +78,7 @@ class UserRepository extends AbstractRepository
 
     public function update($user): bool
     {
-        $query = 'UPDATE users SET nom = :nom, prenom = :prenom, type_user = :type_user, adresse = :adresse, numero_carte_identite = :numero_carte_identite, photo_identite_recto = :photo_identite_recto, photo_identite_verso = :photo_identite_verso WHERE code = :code';
+        $query = 'UPDATE users SET nom = :nom, prenom = :prenom, type_user = :type_user, adresse = :adresse, numero_carte_identite = :numero_carte_identite, photo_identite_recto = :photo_identite_recto, photo_identite_verso = :photo_identite_verso, numero = :numero WHERE code = :code';
         $stmt = $this->pdo->prepare($query);
         return $stmt->execute([
             ':code' => $user->getCodeSecret(),
@@ -84,6 +89,7 @@ class UserRepository extends AbstractRepository
             ':numero_carte_identite' => $user->getNumeroIdentite(),
             ':photo_identite_recto' => $user->getPhotoCNIrecto(),
             ':photo_identite_verso' => $user->getPhotoCNIverso(),
+            ':numero' => $user->getNumero(),
         ]);
     }
 }
