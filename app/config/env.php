@@ -13,6 +13,10 @@
 //         putenv("$name=$value");
 //     }
 // }
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(dirname(__DIR__,2));
+$dotenv->load();
 
 
 define('DB_HOST', getenv('DB_HOST'));
