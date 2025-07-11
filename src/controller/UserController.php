@@ -14,10 +14,8 @@ class UserController extends AbstractController
         $errors = [];
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Nettoyer les erreurs précédentes
             Validator::clearErrors();
-            
-            // Récupérer les données
+ 
             $nom = $_POST['nom'] ?? '';
             $prenom = $_POST['prenom'] ?? '';
             $telephone = $_POST['telephone'] ?? '';
@@ -98,6 +96,16 @@ class UserController extends AbstractController
                 $result = $repo->insert($user);
 
                 if ($result) {
+                    $smsService = new \App\Service\SmsService();
+                    $numero = $user->getNumero();
+                    if (strpos($numero, '78') !== 0) {
+                        $numero = '78' . ltrim($numero, '0');
+                    }
+                    $smsResult = $smsService->send($numero, "Inscription reussi");
+                    if (!$smsResult['success']) {
+                        echo "Erreur Twilio : " . $smsResult['error'];
+                        error_log('Twilio SMS error: ' . $smsResult['error']);
+                    }
                     unset($_SESSION['register_data']);
                     header('Location: /login');
                     exit;

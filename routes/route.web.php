@@ -21,8 +21,8 @@ $routes = [
         'middlewares' => []
     ],
     '/accueil' => [
-        'controller' => 'App\\Controller\\UserController', // ou un autre contrôleur
-        'action' => 'index', // ou 'accueil' selon ton code
+        'controller' => 'App\\Controller\\UserController', 
+        'action' => 'index',
         'middlewares' => []
     ],
     '/logout' => [

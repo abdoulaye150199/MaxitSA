@@ -11,12 +11,9 @@ class SecutiryController extends AbstractController {
         $errors = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Nettoyer les erreurs précédentes
             Validator::clearErrors();
             
             $code = $_POST['code'] ?? '';
-
-            // Validation
             Validator::validate('required', $code, 'code', 'Le code secret est obligatoire.');
             Validator::validate('codeSecret', $code, 'code', 'Le code secret doit contenir exactement 4 chiffres.');
 

@@ -45,7 +45,6 @@ class Validator
 
     public static function validate(string $critere, $value, string $field, $message = null, $extra = null)
     {
-        // Initialiser les règles si ce n'est pas déjà fait
         if (empty(self::$rules)) {
             new self();
         }
