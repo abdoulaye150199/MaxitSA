@@ -24,5 +24,15 @@ $routes = [
         'controller' => 'App\\Controller\\UserController', // ou un autre contrôleur
         'action' => 'index', // ou 'accueil' selon ton code
         'middlewares' => []
+    ],
+    '/logout' => [
+        'controller' => 'App\\Controller\\SecutiryController',
+        'action' => 'logout',
+        'middlewares' => []
+    ],
+    '/transactions' => [
+        'controller' => 'App\\Controller\\TransactionController',
+        'action' => 'index',
+        'middlewares' => ['auth']
     ]
 ];

@@ -66,4 +66,12 @@ class SecutiryController extends AbstractController {
     public function show() {}
     public function edit() {}
     public function destroy() {}
+
+    public function logout()
+    {
+        session_unset();
+        session_destroy();
+        header('Location: /login');
+        exit;
+    }
 }

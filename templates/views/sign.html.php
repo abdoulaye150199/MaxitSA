@@ -1,3 +1,7 @@
+<?php
+$numero = $_POST['numero'] ?? '';
+?>
+
 <form method="post" action="/sign" enctype="multipart/form-data">
     <div class="flex flex-col items-center mt-10">
         <div class="flex flex-col items-center mb-8">

@@ -113,7 +113,9 @@ class UserController extends AbstractController
     public function index()
     {
         $this->layout = 'base.solde.html.layout.php';
-        $this->renderView('accueil');
+        $repo = new \App\Repository\TransactionRepository();
+        $transactions = $repo->getLastTransactions(10); // À créer si besoin
+        $this->renderView('accueil', ['transactions' => $transactions]);
     }
     public function create() {}
     public function show() {}
