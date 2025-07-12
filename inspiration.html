@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaxItSA - Inscription</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-beige': '#f8f6f3',
+                        'custom-brown': '#d4b896',
+                        'custom-brown-dark': '#c4a676',
+                        'custom-brown-darker': '#b39660',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-custom-beige">
+    <div class="w-full max-w-4xl">
+        <div class="w-30 h-30 bg-custom-brown-dark rounded-full flex items-center justify-center mx-auto mb-10 text-white text-2xl font-semibold">
+            MaxItSA
+        </div>
+        
+        <form class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-custom-brown-dark text-sm font-semibold mb-2">PRÉNOM(S) *</label>
+                    <input type="text" class="w-full border-2 border-custom-brown rounded-xl bg-custom-beige text-custom-brown p-4 text-base transition-all duration-300 placeholder-custom-brown focus:outline-none focus:border-custom-brown-dark" placeholder="Entrez votre Prénom(s)">
+                </div>
+                <div>
+                    <label class="block text-custom-brown-dark text-sm font-semibold mb-2">NOM *</label>
+                    <input type="text" class="w-full border-2 border-custom-brown rounded-xl bg-custom-beige text-custom-brown p-4 text-base transition-all duration-300 placeholder-custom-brown focus:outline-none focus:border-custom-brown-dark" placeholder="Entrez votre nom">
+                </div>
+            </div>
+            
+            <!-- Deuxième ligne: Adresse et Téléphone -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-custom-brown-dark text-sm font-semibold mb-2">ADRESSE *</label>
+                    <input type="text" class="w-full border-2 border-custom-brown rounded-xl bg-custom-beige text-custom-brown p-4 text-base transition-all duration-300 placeholder-custom-brown focus:outline-none focus:border-custom-brown-dark" placeholder="Entrez votre Adresse">
+                </div>
+                <div>
+                    <label class="block text-custom-brown-dark text-sm font-semibold mb-2">TÉLÉPHONE *</label>
+                    <input type="tel" class="w-full border-2 border-custom-brown rounded-xl bg-custom-beige text-custom-brown p-4 text-base transition-all duration-300 placeholder-custom-brown focus:outline-none focus:border-custom-brown-dark" placeholder="Entrez votre numéro téléphone">
+                </div>
+            </div>
+            
+            <!-- Numéro d'identité -->
+            <div>
+                <label class="block text-custom-brown-dark text-sm font-semibold mb-2">NUMÉRO D'IDENTITÉ *</label>
+                <input type="text" class="w-full border-2 border-custom-brown rounded-xl bg-custom-beige text-custom-brown p-4 text-base transition-all duration-300 placeholder-custom-brown focus:outline-none focus:border-custom-brown-dark" placeholder="Entrez le numéro de votre carte d'identité">
+            </div>
+            
+            <!-- Upload carte d'identité -->
+            <div>
+                <label class="block text-custom-brown-dark text-sm font-semibold mb-2">Veuillez Técharger votre carte d'identité *</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
+                    <div class="border-2 border-dashed border-custom-brown rounded-xl bg-custom-beige p-10 text-center transition-all duration-300 cursor-pointer hover:border-custom-brown-dark hover:bg-stone-50" onclick="document.getElementById('recto').click()">
+                        <div class="w-12 h-12 mx-auto mb-2 border-2 border-custom-brown rounded-lg flex items-center justify-center bg-custom-beige">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4b896" stroke-width="2">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c0-1.1-.9-2-2-2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                        </div>
+                        <div class="text-sm text-gray-600 font-medium">RECTO</div>
+                        <input type="file" id="recto" class="hidden" accept="image/*">
+                    </div>
+                    <div class="border-2 border-dashed border-custom-brown rounded-xl bg-custom-beige p-10 text-center transition-all duration-300 cursor-pointer hover:border-custom-brown-dark hover:bg-stone-50" onclick="document.getElementById('verso').click()">
+                        <div class="w-12 h-12 mx-auto mb-2 border-2 border-custom-brown rounded-lg flex items-center justify-center bg-custom-beige">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d4b896" stroke-width="2">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c0-1.1-.9-2-2-2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                        </div>
+                        <div class="text-sm text-gray-600 font-medium">VERSO</div>
+                        <input type="file" id="verso" class="hidden" accept="image/*">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bouton S'inscrire -->
+            <div class="flex justify-center mt-8">
+                <button type="submit" class="bg-custom-brown-dark text-white px-8 py-4 rounded-xl text-lg font-semibold border-none cursor-pointer transition-all duration-300 w-full max-w-sm hover:bg-custom-brown-darker">
+                    S'inscrire
+                </button>
+            </div>
+            
+            <!-- Lien de connexion -->
+            <div class="text-center mt-6">
+                <span class="text-gray-600">j'ai déjà un compte ! </span>
+                <a href="#" class="text-custom-brown-dark font-semibold hover:underline">Se Connecter</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
