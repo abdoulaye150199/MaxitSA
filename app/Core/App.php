@@ -33,6 +33,11 @@ class App
         return self::getInstance()->resolve(Session::class);
     }
 
+    public static function validator(): Validator
+    {
+        return new Validator();
+    }
+
     public function resolve(string $abstract)
     {
         return $this->container->resolve($abstract);
