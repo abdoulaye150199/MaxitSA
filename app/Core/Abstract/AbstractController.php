@@ -2,6 +2,7 @@
 namespace App\Core\Abstract;
 
 use App\Core\App;
+use App\Core\Validator;  // Add this import
 
 abstract class AbstractController {
 
@@ -38,18 +39,8 @@ abstract class AbstractController {
      */
     protected function validate(array $data, array $rules): array
     {
-        $validator = App::validator();
-        $errors = [];
-
-        foreach ($rules as $field => $fieldRules) {
-            $value = $data[$field] ?? '';
-            
-            foreach ($fieldRules as $rule => $message) {
-                $validator::validate($rule, $value, $field, $message);
-            }
-        }
-
-        return $validator::getErrors();
+        $validator = new Validator();  // Create new instance instead of static call
+        return $validator->validate($data, $rules);  // Call validate as instance method
     }
 
     /**
