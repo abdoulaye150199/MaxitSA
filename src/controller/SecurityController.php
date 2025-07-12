@@ -3,39 +3,63 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
-use App\Service\Interfaces\UserServiceInterface;
+use App\Core\App;
+use App\Core\Session;
+use App\Repository\UserRepository;
 
 class SecurityController extends AbstractController
 {
-    private UserServiceInterface $userService;
+    private UserRepository $userRepository;
+    protected Session $session; // Changed from private to protected to match parent class
 
-    public function __construct(UserServiceInterface $userService)
+    public function __construct(UserRepository $userRepository)
     {
         parent::__construct();
-        $this->userService = $userService;
+        $this->userRepository = $userRepository;
+        $this->session = App::getInstance()->getDependency('session');
     }
 
     public function login()
     {
+        $error = null;
+        $errors = [];
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $result = $this->userService->login($_POST['code'] ?? '');
+            $code = $_POST['code'] ?? '';
             
-            if ($result['success']) {
-                $this->session->set('user_id', $result['user']['id']);
-                $this->session->set('user', $result['user']);
-                $this->redirect('/accueil');
-                return;
-            } else {
-                $this->layout = 'base.login.html.layout.php';
-                $this->renderView('login', [
-                    'errors' => $result['errors']
-                ]);
-                return;
+            // Validation du code
+            if (empty($code)) {
+                $errors['code'] = 'Le code secret est obligatoire.';
+            } elseif (!preg_match('/^[0-9]{4}$/', $code)) {
+                $errors['code'] = 'Le code secret doit contenir exactement 4 chiffres.';
+            }
+
+            if (empty($errors)) {
+                $authenticatedUser = $this->userRepository->findByCode($code);
+                
+                if ($authenticatedUser) {
+                    $this->session->set('user_id', $authenticatedUser->getId());
+                    $this->session->set('user', [
+                        'id' => $authenticatedUser->getId(),
+                        'nom' => $authenticatedUser->getNom(),
+                        'prenom' => $authenticatedUser->getPrenom(),
+                        'numero' => $authenticatedUser->getNumero(),
+                        'type' => $authenticatedUser->getTypeUserValue()
+                    ]);
+
+                    $this->redirect('/accueil');
+                    return;
+                } else {
+                    $error = "Code secret incorrect";
+                }
             }
         }
 
         $this->layout = 'base.login.html.layout.php';
-        $this->renderView('login');
+        $this->renderView('login', [
+            'error' => $error,
+            'errors' => $errors
+        ]);   
     }
 
     public function logout()

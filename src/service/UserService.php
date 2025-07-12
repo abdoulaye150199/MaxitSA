@@ -128,6 +128,7 @@ class UserService implements UserServiceInterface
             ];
         }
 
+        // Utiliser la nouvelle méthode qui vérifie le hash
         $user = $this->userRepository->findByCode($code);
 
         if (!$user) {
@@ -143,6 +144,7 @@ class UserService implements UserServiceInterface
                 'id' => $user->getId(),
                 'nom' => $user->getNom(),
                 'prenom' => $user->getPrenom(),
+                'numero' => $user->getNumero(),
                 'type' => $user->getTypeUser()->value
             ]
         ];

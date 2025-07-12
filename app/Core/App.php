@@ -12,6 +12,7 @@ class App
     private static ?App $instance = null;
     private Container $container;
     private array $providers = [];
+    private array $dependencies = [];
 
     private function __construct()
     {
@@ -41,6 +42,16 @@ class App
     public function resolve(string $abstract)
     {
         return $this->container->resolve($abstract);
+    }
+
+    public function getDependency(string $name)
+    {
+        return $this->dependencies[$name] ?? null;
+    }
+
+    public function setDependency(string $name, $dependency): void
+    {
+        $this->dependencies[$name] = $dependency;
     }
 
     private function registerProviders(): void
