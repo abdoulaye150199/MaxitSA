@@ -1,0 +1,19 @@
+CLIENT(id_client, nom, prenom, numero_telephone, numero_cni, adresse, photo_recto, photo_verso, date_creation)
+TYPE_COMPTE(id_type, libelle)
+TYPE_TRANSACTION(id_type, libelle)
+COMPTE(id_compte, numero_telephone, solde, code_secret, est_principal, date_creation, id_client, id_type_compte)
+TRANSACTION(id_transaction, montant, date_transaction, id_compte, id_type_transaction)
+SERVICE_COMMERCIAL(id_service, login, password, nom, prenom, date_creation)
+
+Valeurs : 'principal', 'secondaire'
+
+TYPE_TRANSACTION (id_type, libelle)
+
+Valeurs : 'PAIEMENT', 'DEPOT', 'RETRAIT'
+
+Contraintes :
+
+Un client peut avoir plusieurs comptes
+Un seul compte principal par client
+Un compte appartient à un seul client
+Une transaction appartient à un seul compte

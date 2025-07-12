@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaxItSA - Créer un Code</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-brown': '#c4a676',
+                        'custom-light': '#f8f6f3',
+                        'custom-border': '#d4b896'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-custom-light min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-lg">
+        <!-- Logo -->
+        <div class="w-32 h-32 bg-custom-brown rounded-full flex items-center justify-center mx-auto mb-16">
+            <span class="text-white text-2xl font-semibold">MaxItSA</span>
+        </div>
+        
+        <!-- Titre -->
+        <h1 class="text-center text-black text-xl font-bold mb-16 tracking-wide">
+            BIENVENUE SUR VOTRE APPLICATION MAXIT
+        </h1>
+        
+        <!-- Formulaire -->
+        <form class="space-y-8">
+            <!-- Champ Code Secret -->
+            <div class="relative">
+                <label class="absolute -top-3 left-4 bg-custom-light px-2 text-custom-brown text-sm font-medium">
+                    cree un code Secret
+                </label>
+                <input 
+                    type="password" 
+                    class="w-full border-2 border-custom-border rounded-xl bg-custom-light px-4 py-4 text-custom-brown placeholder-custom-border focus:outline-none focus:border-custom-brown transition-colors"
+                    placeholder="ENTRER VOTRE CODE SECRET"
+                >
+            </div>
+            
+            <!-- Bouton Créer -->
+            <button 
+                type="submit" 
+                class="w-full bg-custom-brown text-white py-4 rounded-xl text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 mt-12"
+            >
+                cree
+            </button>
+        </form>
+    </div>
+</body>
+</html>
