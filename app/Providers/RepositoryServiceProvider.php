@@ -10,6 +10,9 @@ class RepositoryServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->container->bind(UserRepositoryInterface::class, UserRepository::class);
+        $this->container->bind(UserRepositoryInterface::class, function($container) {
+            $database = $container->resolve(\App\Core\Database::class);
+            return new UserRepository($database);
+        });
     }
 }

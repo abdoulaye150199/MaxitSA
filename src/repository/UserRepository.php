@@ -8,20 +8,21 @@ use App\Repository\Interfaces\UserRepositoryInterface;
 
 class UserRepository implements UserRepositoryInterface
 {
+    private $database;
     private $pdo;
 
     public function __construct(Database $database)
     {
+        $this->database = $database;
         $this->pdo = $database->getPdo();
     }
 
     public function findAll(): array
     {
         $stmt = $this->pdo->query('SELECT * FROM users');
-        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        return array_map([$this, 'mapToEntity'], $rows);
+        return $stmt->fetchAll(\PDO::FETCH_CLASS, Utilisateur::class);
     }
-
+    
     public function findById(int $id): ?Utilisateur
     {
         $stmt = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
@@ -32,10 +33,16 @@ class UserRepository implements UserRepositoryInterface
 
     public function findByCode(string $code): ?Utilisateur
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE code = :code');
-        $stmt->execute([':code' => $code]);
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $row ? $this->mapToEntity($row) : null;
+        $stmt = $this->pdo->query('SELECT * FROM users');
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        foreach ($rows as $row) {
+            if (password_verify($code, $row['code'])) {
+                return $this->mapToEntity($row);
+            }
+        }
+        
+        return null;
     }
 
     public function findByPhone(string $phone): ?Utilisateur

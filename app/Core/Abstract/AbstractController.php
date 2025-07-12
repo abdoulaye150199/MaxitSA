@@ -2,12 +2,13 @@
 namespace App\Core\Abstract;
 
 use App\Core\App;
-use App\Core\Validator;  // Add this import
+use App\Core\Session;
+use App\Core\Validator;
 
 abstract class AbstractController {
 
     protected string $layout = 'base.solde.html.layout.php';
-    protected $session;
+    protected Session $session; // Add type declaration here
 
     abstract public function index();
     abstract public function create();
