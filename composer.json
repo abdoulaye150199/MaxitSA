@@ -9,7 +9,8 @@
             "App\\Repository\\": "src/repository/",
             "App\\Controller\\": "src/controller/",
             "App\\config\\": "app/config/",
-            "App\\Core\\": "app/Core/"
+            "App\\Core\\": "app/Core/",
+            "App\\Providers\\": "app/Providers/"
         }
         },
     
@@ -20,7 +21,6 @@
         }
     ],
     "require": {
-        "vlucas/phpdotenv": "^5.6",
-        "twilio/sdk": "^8.6"
+        "vlucas/phpdotenv": "^5.6"
     }
 }

@@ -1,13 +1,19 @@
 <?php
+
 $routes = [
     '/' => [
-        'controller' => 'App\\Controller\\SecutiryController',
+        'controller' => 'App\\Controller\\SecurityController',
         'action' => 'login',
         'middlewares' => []
     ],
     '/login' => [
-        'controller' => 'App\\Controller\\SecutiryController',
+        'controller' => 'App\\Controller\\SecurityController',
         'action' => 'login',
+        'middlewares' => []
+    ],
+    '/logout' => [
+        'controller' => 'App\\Controller\\SecurityController',
+        'action' => 'logout',
         'middlewares' => []
     ],
     '/sign' => [
@@ -21,17 +27,7 @@ $routes = [
         'middlewares' => []
     ],
     '/accueil' => [
-        'controller' => 'App\\Controller\\UserController', 
-        'action' => 'index',
-        'middlewares' => []
-    ],
-    '/logout' => [
-        'controller' => 'App\\Controller\\SecutiryController',
-        'action' => 'logout',
-        'middlewares' => []
-    ],
-    '/transactions' => [
-        'controller' => 'App\\Controller\\TransactionController',
+        'controller' => 'App\\Controller\\UserController',
         'action' => 'index',
         'middlewares' => ['auth']
     ]

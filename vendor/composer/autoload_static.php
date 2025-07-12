@@ -13,10 +13,6 @@ class ComposerStaticInitc2bf46368c19608165b4309f82de24c1
     );
 
     public static $prefixLengthsPsr4 = array (
-        'T' => 
-        array (
-            'Twilio\\' => 7,
-        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Php80\\' => 23,
@@ -40,6 +36,7 @@ class ComposerStaticInitc2bf46368c19608165b4309f82de24c1
             'App\\config\\' => 11,
             'App\\Service\\' => 12,
             'App\\Repository\\' => 15,
+            'App\\Providers\\' => 14,
             'App\\Entite\\' => 11,
             'App\\Core\\' => 9,
             'App\\Controller\\' => 15,
@@ -48,10 +45,6 @@ class ComposerStaticInitc2bf46368c19608165b4309f82de24c1
     );
 
     public static $prefixDirsPsr4 = array (
-        'Twilio\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/twilio/sdk/src/Twilio',
-        ),
         'Symfony\\Polyfill\\Php80\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
@@ -87,6 +80,10 @@ class ComposerStaticInitc2bf46368c19608165b4309f82de24c1
         'App\\Repository\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/repository',
+        ),
+        'App\\Providers\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/app/Providers',
         ),
         'App\\Entite\\' => 
         array (

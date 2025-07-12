@@ -6,7 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Twilio\\' => array($vendorDir . '/twilio/sdk/src/Twilio'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
     'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
     'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),
@@ -16,6 +15,7 @@ return array(
     'App\\config\\' => array($baseDir . '/app/config'),
     'App\\Service\\' => array($baseDir . '/src/service'),
     'App\\Repository\\' => array($baseDir . '/src/repository'),
+    'App\\Providers\\' => array($baseDir . '/app/Providers'),
     'App\\Entite\\' => array($baseDir . '/src/entite'),
     'App\\Core\\' => array($baseDir . '/app/Core'),
     'App\\Controller\\' => array($baseDir . '/src/controller'),

@@ -2,39 +2,46 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
-use App\Core\Validator;
+use App\Core\App;
 
 class SecutiryController extends AbstractController {
+    
+    private $userRepository;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->userRepository = new \App\Repository\UserRepository();
+    }
+
     public function login()
     {
         $error = null;
         $errors = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            Validator::clearErrors();
-            
-            $code = $_POST['code'] ?? '';
-            Validator::validate('required', $code, 'code', 'Le code secret est obligatoire.');
-            Validator::validate('codeSecret', $code, 'code', 'Le code secret doit contenir exactement 4 chiffres.');
+            $errors = $this->validate($_POST, [
+                'code' => [
+                    'required' => 'Le code secret est obligatoire.',
+                    'codeSecret' => 'Le code secret doit contenir exactement 4 chiffres.'
+                ]
+            ]);
 
-            $errors = Validator::getErrors();
-
-            if (Validator::isValid()) {
-                $repo = new \App\Repository\UserRepository();
-                $user = $repo->selectByCode($code);
+            if (empty($errors)) {
+                $user = $this->userRepository->selectByCode($_POST['code']);
                 
                 if ($user) {
-                    $_SESSION['user_id'] = $user->getId();
-                    $_SESSION['user'] = [
+                    $session = App::getDependencie('session');
+                    $session->set('user_id', $user->getId());
+                    $session->set('user', App::toArray([
                         'id' => $user->getId(),
                         'nom' => $user->getNom(),
                         'prenom' => $user->getPrenom(),
                         'type' => $user->getTypeUser()->value
-                    ];
+                    ]));
 
-                    $this->session->set('code', $code);
-                    header('Location: /accueil');
-                    exit;
+                    $session->set('code', $_POST['code']);
+                    $this->redirect('/accueil');
                 } else {
                     $error = "Code secret incorrect";
                 }
@@ -63,12 +70,4 @@ class SecutiryController extends AbstractController {
     public function show() {}
     public function edit() {}
     public function destroy() {}
-
-    public function logout()
-    {
-        session_unset();
-        session_destroy();
-        header('Location: /login');
-        exit;
-    }
 }

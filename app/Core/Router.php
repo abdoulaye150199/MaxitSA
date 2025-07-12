@@ -2,11 +2,18 @@
 
 namespace App\Core;
 
-use App\Core;
+use App\Core\App;
 
 class Router
 {
-    public static function resolve()
+    private App $app;
+
+    public function __construct()
+    {
+        $this->app = App::getInstance();
+    }
+
+    public function resolve()
     {
         global $routes;
 
@@ -21,16 +28,25 @@ class Router
                 Middleware::handle($route['middlewares']);
             }
 
-            if (class_exists($controller) && method_exists($controller, $action)) {
-                $controllerInstance = new $controller();
-                $controllerInstance->$action();
+            if (class_exists($controller)) {
+                $controllerInstance = $this->app->resolve($controller);
+                
+                if (method_exists($controllerInstance, $action)) {
+                    $controllerInstance->$action();
+                } else {
+                    $this->notFound();
+                }
             } else {
-                http_response_code(404);
-                echo "Page not found.";
+                $this->notFound();
             }
         } else {
-            http_response_code(404);
-            echo "Page not found.";
+            $this->notFound();
         }
+    }
+
+    private function notFound(): void
+    {
+        http_response_code(404);
+        echo "Page not found.";
     }
 }

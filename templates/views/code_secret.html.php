@@ -33,6 +33,8 @@
                 class="w-full border-2 <?= isset($errors['code_secret']) ? 'border-red-500' : 'border-custom-border' ?> rounded-xl bg-custom-light px-4 py-4 text-custom-brown placeholder-custom-border focus:outline-none focus:border-custom-brown transition-colors"
                 placeholder="CRÉER VOTRE CODE SECRET"
                 maxlength="4"
+                pattern="[0-9]{4}"
+                required
             >
         </div>
         

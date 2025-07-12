@@ -31,34 +31,39 @@
             <a href="#" class="text-[#d4b896] mt-4 block">Voir l'historique &rarr;</a>
         </div>
     </div>
-  
-    
+    <!-- Services -->
+    <!-- <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+            <img src="/assets/ic-woyofal.svg" alt="Woyofal" class="w-10 h-10 mb-2" />
+            <span class="font-semibold">Woyofal</span>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+            <img src="/assets/ic-retrait.svg" alt="Retrait" class="w-10 h-10 mb-2" />
+            <span class="font-semibold">Retrait</span>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+            <img src="/assets/ic-pass.svg" alt="Pass internet" class="w-10 h-10 mb-2" />
+            <span class="font-semibold">Pass internet</span>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
+            <img src="/assets/ic-plus.svg" alt="Voir Plus" class="w-10 h-10 mb-2" />
+            <span class="font-semibold">Voir Plus</span>
+        </div>
     </div>
-   
-
-    <h2 class="font-bold text-lg mb-4">Historique Des Transactions</h2>
-     <div class="text-right">
-        <a href="/transactions" class="text-[#d4b896] font-bold hover:underline">Voir Plus &rarr;</a>
+    <!-- Dernier envoi -->
+    <div class="bg-white rounded-xl shadow p-6 mt-8">
+        <h3 class="font-semibold mb-4">Dernier envoi</h3>
+        <div class="flex items-center gap-4">
+            <!-- <img src="/assets/ic-user.svg" alt="User" class="w-10 h-10 rounded-full" /> -->
+            <div>
+                <div class="font-semibold">Khouss Ngom</div>
+                <div class="text-sm text-gray-500">+221778232295</div>
+            </div>
+            <div class="ml-auto font-bold">FCFA</div>
+        </div>
     </div>
-    <table class="w-full rounded-xl overflow-hidden shadow mb-4">
-        <thead class="bg-[#d4b896] text-white">
-            <tr>
-                <th class="py-2 px-4 text-left">Type-Transactions</th>
-                <th class="py-2 px-4 text-left">Bénéficiaire</th>
-                <th class="py-2 px-4 text-left">Montant</th>
-                <th class="py-2 px-4 text-left">Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($transactions as $tx): ?>
-                <tr class="border-b">
-                    <td class="py-2 px-4 align-middle"><?= htmlspecialchars($tx['type_transaction']) ?></td>
-                    <td class="py-2 px-4 align-middle"><?= htmlspecialchars($tx['user_id'] ?? 'N/A') ?></td>
-                    <td class="py-2 px-4 align-middle"><?= number_format($tx['montant'], 0, ',', ' ') ?> CFA</td>
-                    <td class="py-2 px-4 align-middle"><?= date('d/m/Y à H:i', strtotime($tx['date'])) ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-   
-</div>
+    <!-- Bannière -->
+    <div class="bg-white rounded-xl shadow p-6 mt-8 flex items-center justify-center">
+        <!-- <img src="/assets/banner.png" alt="Bannière" class="w-full h-32 object-cover rounded-lg" /> -->
+    </div>
+</div> -->

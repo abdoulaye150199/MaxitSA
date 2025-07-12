@@ -6,28 +6,33 @@ use PDO;
 
 class Database
 {
-    private static $instance = null;
+    private static ?self $instance = null;
+    private PDO $pdo;
 
-    public static function getInstance(): PDO
+    private function __construct()
+    {
+        $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
+        $port = $_ENV['DB_PORT'] ?? '5432';
+        $dbname = $_ENV['DB_NAME'] ?? '';
+        $user = $_ENV['DB_USER'] ?? '';
+        $pass = $_ENV['DB_PASS'] ?? '';
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+
+        $this->pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
+    }
+
+    public static function getInstance(): self
     {
         if (self::$instance === null) {
-            $host = DB_HOST ?? '127.0.0.1';
-            $port = DB_PORT ?? '5432';
-            $dbname =DB_NAME ?? '';
-            $user = DB_USER ?? '';
-            $pass = DB_PASS ?? '';
-            $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-            error_log("HOST: $host, PORT: $port, DB: $dbname, USER: $user, PASS: $pass");
-            self::$instance = new PDO($dsn, $user, $pass, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-            ]);
-            // self::$instance = new PDO($dsn, $user, $pass);
-            // self::$instance-> setAttribute(PDO::ATTR_ERRMODE , PDO::ERRMODE_EXCEPTION);
-            // self::$instance->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-
+            self::$instance = new self();
         }
         return self::$instance;
+    }
+
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
     }
 }

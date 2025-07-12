@@ -2,59 +2,47 @@
 
 namespace App\Core;
 
+use App\Core\Errors\ErrorMessages;
+
 class Validator
 {
     private static array $errors = [];
 
-    private static array $rules = [];
-
-    public function __construct()
+    public static function validate(array $data, array $rules): array
     {
-        self::$rules = [
-            "required" => function ($value, $field, $message = null) {
-                if (empty($value)) {
-                    Validator::addError($field, $message ?? "Le champ $field est obligatoire.");
-                }
-            },
+        self::$errors = [];
 
-            "regex" => function ($value, $field, $pattern, $message = null) {
-                if (!preg_match($pattern, $value)) {
-                    Validator::addError($field, $message ?? "Le champ $field n'est pas valide.");
-                }
-            },
-
-            "telephoneValide" => function ($value, $field, $message = null) {
-                if (!preg_match('/^(77|78)[0-9]{7}$/', $value)) {
-                    Validator::addError($field, $message ?? "$value n'est pas un numéro valide.");
-                }
-            },
-
-            "CNIValide" => function ($value, $field, $message = null) {
-                if (!preg_match('/^(1|2)[0-9]{12}$/', $value)) {
-                    Validator::addError($field, $message ?? "$value n'est pas un CNI valide.");
-                }
-            },
-
-            "codeSecret" => function ($value, $field, $message = null) {
-                if (!preg_match('/^[0-9]{4}$/', $value)) {
-                    Validator::addError($field, $message ?? "Le code secret doit contenir exactement 4 chiffres.");
+        foreach ($rules as $field => $fieldRules) {
+            $value = $data[$field] ?? '';
+            
+            foreach ($fieldRules as $rule => $message) {
+                if (!self::validateRule($rule, $value, $field)) {
+                    self::$errors[$field] = $message ?: ErrorMessages::get($rule, $field);
+                    break;
                 }
             }
-        ];
-    }
-
-    public static function validate(string $critere, $value, string $field, $message = null, $extra = null)
-    {
-        if (empty(self::$rules)) {
-            new self();
         }
 
-        if (isset(self::$rules[$critere])) {
-            if ($critere === "regex" && $extra !== null) {
-                self::$rules[$critere]($value, $field, $extra, $message);
-            } else {
-                self::$rules[$critere]($value, $field, $message);
-            }
+        return self::$errors;
+    }
+
+    private static function validateRule(string $rule, $value, string $field): bool
+    {
+        switch ($rule) {
+            case 'required':
+                return !empty($value);
+            
+            case 'telephone_valid':
+                return preg_match('/^(77|78)[0-9]{7}$/', $value);
+            
+            case 'cni_valid':
+                return preg_match('/^(1|2)[0-9]{12}$/', $value);
+            
+            case 'code_secret':
+                return preg_match('/^[0-9]{4}$/', $value);
+            
+            default:
+                return true;
         }
     }
 
@@ -71,20 +59,5 @@ class Validator
     public static function clearErrors(): void
     {
         self::$errors = [];
-    }
-
-    private static function addError(string $field, string $message)
-    {
-        self::$errors[$field] = $message;
-    }
-
-    public static function hasError(string $field): bool
-    {
-        return isset(self::$errors[$field]);
-    }
-
-    public static function getError(string $field): ?string
-    {
-        return self::$errors[$field] ?? null;
     }
 }

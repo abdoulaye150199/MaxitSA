@@ -2,46 +2,87 @@
 
 namespace App\Repository;
 
-use App\Core\Abstract\AbstractRepository;
 use App\Core\Database;
 use App\Entite\Utilisateur;
-use PDO;
+use App\Repository\Interfaces\UserRepositoryInterface;
 
-class UserRepository extends AbstractRepository
+class UserRepository implements UserRepositoryInterface
 {
-    private PDO $pdo;
+    private $pdo;
 
-    public function __construct()
+    public function __construct(Database $database)
     {
-        $this->pdo = Database::getInstance();
+        $this->pdo = $database->getPdo();
     }
 
-    public function selectAll(): array
+    public function findAll(): array
     {
         $stmt = $this->pdo->query('SELECT * FROM users');
-        $users = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $users[] = Utilisateur::fromArray($row);
-        }
-        return $users;
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToEntity'], $rows);
     }
 
-    public function insert($user): bool
+    public function findById(int $id): ?Utilisateur
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? $this->mapToEntity($row) : null;
+    }
+
+    public function findByCode(string $code): ?Utilisateur
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE code = :code');
+        $stmt->execute([':code' => $code]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? $this->mapToEntity($row) : null;
+    }
+
+    public function findByPhone(string $phone): ?Utilisateur
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE numero = :numero');
+        $stmt->execute([':numero' => $phone]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? $this->mapToEntity($row) : null;
+    }
+
+    public function create(Utilisateur $user): bool
     {
         try {
-            $query = 'INSERT INTO users (code, nom, prenom, type_user, adresse, numero_carte_identite, photo_identite_recto, photo_identite_verso, numero) 
-                      VALUES (:code, :nom, :prenom, :type_user, :adresse, :numero_carte_identite, :photo_identite_recto, :photo_identite_verso, :numero)';
+            $query = 'INSERT INTO users (
+                code, 
+                nom, 
+                prenom, 
+                numero, 
+                adresse, 
+                type_user, 
+                photo_identite_recto, 
+                photo_identite_verso, 
+                numero_carte_identite
+            ) VALUES (
+                :code, 
+                :nom, 
+                :prenom, 
+                :numero, 
+                :adresse, 
+                :type_user, 
+                :photo_identite_recto, 
+                :photo_identite_verso, 
+                :numero_carte_identite
+            )';
+            
             $stmt = $this->pdo->prepare($query);
+            
             return $stmt->execute([
-                ':code' => $user->getCodeSecret(),
+                ':code' => $user->getCode(),
                 ':nom' => $user->getNom(),
                 ':prenom' => $user->getPrenom(),
-                ':type_user' => $user->getTypeUser()->value,
-                ':adresse' => $user->getAdresse(),
-                ':numero_carte_identite' => $user->getNumeroIdentite(),
-                ':photo_identite_recto' => $user->getPhotoCNIrecto(),
-                ':photo_identite_verso' => $user->getPhotoCNIverso(),
                 ':numero' => $user->getNumero(),
+                ':adresse' => $user->getAdresse(),
+                ':type_user' => $user->getTypeUserValue(),
+                ':photo_identite_recto' => $user->getPhotoIdentiteRecto(),
+                ':photo_identite_verso' => $user->getPhotoIdentiteVerso(),
+                ':numero_carte_identite' => $user->getNumeroCarteIdentite()
             ]);
         } catch (\PDOException $e) {
             error_log("Erreur insertion utilisateur: " . $e->getMessage());
@@ -49,47 +90,64 @@ class UserRepository extends AbstractRepository
         }
     }
 
-    public function delete($id): bool
+    public function update(Utilisateur $user): bool
     {
-        $stmt = $this->pdo->prepare('DELETE FROM users WHERE code = :code');
-        return $stmt->execute([':code' => $id]);
+        try {
+            $query = 'UPDATE users SET code = :code, nom = :nom, prenom = :prenom, 
+                      numero = :numero, adresse = :adresse, type_user = :type_user, 
+                      photo_identite_recto = :photo_identite_recto, 
+                      photo_identite_verso = :photo_identite_verso, 
+                      numero_carte_identite = :numero_carte_identite 
+                      WHERE id = :id';
+            
+            $stmt = $this->pdo->prepare($query);
+            
+            return $stmt->execute([
+                ':id' => $user->getId(),
+                ':code' => $user->getCode(),
+                ':nom' => $user->getNom(),
+                ':prenom' => $user->getPrenom(),
+                ':numero' => $user->getNumero(),
+                ':adresse' => $user->getAdresse(),
+                ':type_user' => $user->getTypeUser(),
+                ':photo_identite_recto' => $user->getPhotoIdentiteRecto(),
+                ':photo_identite_verso' => $user->getPhotoIdentiteVerso(),
+                ':numero_carte_identite' => $user->getNumeroCarteIdentite()
+            ]);
+        } catch (\PDOException $e) {
+            error_log("Erreur mise à jour utilisateur: " . $e->getMessage());
+            return false;
+        }
     }
 
-    public function selectById($id)
+    public function delete(int $id): bool
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
-        $stmt->execute([':id' => $id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? Utilisateur::fromArray($row) : null;
+        try {
+            $stmt = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
+            return $stmt->execute([':id' => $id]);
+        } catch (\PDOException $e) {
+            error_log("Erreur suppression utilisateur: " . $e->getMessage());
+            return false;
+        }
     }
 
-    public function selectBy(array $filter): array
+    private function mapToEntity(?array $data): ?Utilisateur
     {
-        return [];
-    }
-
-    public function selectByCode($code)
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE code = :code');
-        $stmt->execute([':code' => $code]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? Utilisateur::fromArray($row) : null;
-    }
-
-    public function update($user): bool
-    {
-        $query = 'UPDATE users SET nom = :nom, prenom = :prenom, type_user = :type_user, adresse = :adresse, numero_carte_identite = :numero_carte_identite, photo_identite_recto = :photo_identite_recto, photo_identite_verso = :photo_identite_verso, numero = :numero WHERE code = :code';
-        $stmt = $this->pdo->prepare($query);
-        return $stmt->execute([
-            ':code' => $user->getCodeSecret(),
-            ':nom' => $user->getNom(),
-            ':prenom' => $user->getPrenom(),
-            ':type_user' => $user->getTypeUser()->value,
-            ':adresse' => $user->getAdresse(),
-            ':numero_carte_identite' => $user->getNumeroIdentite(),
-            ':photo_identite_recto' => $user->getPhotoCNIrecto(),
-            ':photo_identite_verso' => $user->getPhotoCNIverso(),
-            ':numero' => $user->getNumero(),
-        ]);
+        if (!$data) {
+            return null;
+        }
+        
+        return new Utilisateur(
+            (int)$data['id'],
+            $data['code'] ?? '',
+            $data['nom'] ?? '',
+            $data['prenom'] ?? '',
+            $data['numero'] ?? '',
+            $data['adresse'] ?? '',
+            $data['type_user'] ?? 'client',
+            $data['photo_identite_recto'] ?? null,
+            $data['photo_identite_verso'] ?? null,
+            $data['numero_carte_identite'] ?? null
+        );
     }
 }

@@ -1,7 +1,3 @@
-<?php
-$numero = $_POST['numero'] ?? '';
-?>
-
 <form method="post" action="/sign" enctype="multipart/form-data">
     <div class="flex flex-col items-center mt-10">
         <div class="flex flex-col items-center mb-8">
@@ -63,10 +59,10 @@ $numero = $_POST['numero'] ?? '';
                 <label class="text-custom-brown font-bold mb-1">TÉLÉPHONE*</label>
                 <input 
                     type="text" 
-                    name="telephone" 
+                    name="numero" 
                     placeholder="Entrez votre numéro téléphone" 
-                    value="<?= htmlspecialchars($_POST['telephone'] ?? '') ?>"
-                    class="border-2 <?= isset($errors['telephone']) ? 'border-red-500' : 'border-custom-border' ?> rounded-lg px-6 py-4 mb-4 text-custom-brown placeholder-custom-border"
+                    value="<?= htmlspecialchars($_POST['numero'] ?? '') ?>"
+                    class="border-2 <?= isset($errors['numero']) ? 'border-red-500' : 'border-custom-border' ?> rounded-lg px-6 py-4 mb-4 text-custom-brown placeholder-custom-border"
                 >
             </div>
         </div>
