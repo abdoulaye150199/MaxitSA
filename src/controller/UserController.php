@@ -3,21 +3,26 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
+use App\Core\Database; // Ajout de l'import manquant
 use App\Service\Interfaces\UserServiceInterface;
 use App\Service\Interfaces\ValidationServiceInterface;
+use App\Repository\TransactionRepository;
 
 class UserController extends AbstractController
 {
     private UserServiceInterface $userService;
     private ValidationServiceInterface $validationService;
+    private $transactionRepository;
 
     public function __construct(
         UserServiceInterface $userService,
-        ValidationServiceInterface $validationService
+        ValidationServiceInterface $validationService,
+        Database $database
     ) {
         parent::__construct();
         $this->userService = $userService;
         $this->validationService = $validationService;
+        $this->transactionRepository = new TransactionRepository($database->getPdo());
     }
 
     public function store()
@@ -85,8 +90,12 @@ class UserController extends AbstractController
 
     public function index()
     {
+        $latestTransactions = $this->transactionRepository->findLatestTransactions(10);
+        
         $this->layout = 'base.solde.html.layout.php';
-        $this->renderView('accueil');
+        return $this->renderView('accueil', [
+            'latestTransactions' => $latestTransactions
+        ]);
     }
 
     public function create() {}

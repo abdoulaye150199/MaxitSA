@@ -30,6 +30,26 @@ class TransactionRepository {
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    public function findLatestTransactions(int $limit = 10)
+    {
+        $query = "SELECT 
+                    t.id as id_transaction,
+                    t.montant,
+                    t.date as date_transaction,
+                    t.type_transaction,
+                    c.numero as numero_telephone
+                FROM transaction t
+                JOIN compte c ON t.compte_id = c.id
+                ORDER BY t.date DESC
+                LIMIT :limit";
+        
+        $stmt = $this->connexion->prepare($query);
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     public function countAll(): int
     {
         $query = "SELECT COUNT(*) FROM transaction";
