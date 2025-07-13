@@ -93,4 +93,41 @@ class UserController extends AbstractController
     public function show() {}
     public function edit() {}
     public function destroy() {}
+
+    public function nouveauCompte()
+    {
+        $this->layout = 'base.solde.html.layout.php';
+        return $this->renderView('compte');
+    }
+
+    public function createCompte()
+    {
+        $numero = $_POST['numero_telephone'] ?? '';
+        $code = $_POST['code_secret'] ?? '';
+        $montant = $_POST['montant_initial'] ?? '';
+        
+        $errors = [];
+        
+        // Validation
+        if (empty($numero) || !preg_match('/^[0-9]{9}$/', $numero)) {
+            $errors['numero_telephone'] = 'Numéro de téléphone invalide';
+        }
+        
+        if (empty($code) || !preg_match('/^[0-9]{4}$/', $code)) {
+            $errors['code_secret'] = 'Le code secret doit contenir 4 chiffres';
+        }
+        
+        if (empty($montant) || $montant < 500) {
+            $errors['montant_initial'] = 'Le montant initial doit être d\'au moins 500 FCFA';
+        }
+        
+        if (!empty($errors)) {
+            return $this->renderView('compte', ['errors' => $errors]);
+        }
+        
+        // TODO: Créer le compte secondaire dans la base de données
+        
+        // Rediriger vers la page d'accueil avec un message de succès
+        $this->redirect('/accueil');
+    }
 }

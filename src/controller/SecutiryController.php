@@ -2,16 +2,21 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
-use App\Core\App;
+use App\Core\App; // Ajout du bon namespace pour App
+use App\Core\Session;
+use App\Repository\UserRepository;
+use App\Entite\Utilisateur;
 
 class SecutiryController extends AbstractController {
     
-    private $userRepository;
+    private UserRepository $userRepository;
+    protected Session $session;
 
     public function __construct()
     {
         parent::__construct();
-        $this->userRepository = new \App\Repository\UserRepository();
+        $this->userRepository = new UserRepository(App::getInstance()->getDependency('database'));
+        $this->session = App::getInstance()->getDependency('session');
     }
 
     public function login()
@@ -28,19 +33,18 @@ class SecutiryController extends AbstractController {
             ]);
 
             if (empty($errors)) {
-                $user = $this->userRepository->selectByCode($_POST['code']);
+                $user = $this->userRepository->findByCode($_POST['code']); // Changé selectByCode en findByCode
                 
                 if ($user) {
-                    $session = App::getDependencie('session');
-                    $session->set('user_id', $user->getId());
-                    $session->set('user', App::toArray([
+                    $this->session->set('user_id', $user->getId());
+                    $this->session->set('user', [
                         'id' => $user->getId(),
                         'nom' => $user->getNom(),
                         'prenom' => $user->getPrenom(),
-                        'type' => $user->getTypeUser()->value
-                    ]));
+                        'type' => $user->getTypeUserValue()
+                    ]);
 
-                    $session->set('code', $_POST['code']);
+                    $this->session->set('code', $_POST['code']);
                     $this->redirect('/accueil');
                 } else {
                     $error = "Code secret incorrect";
