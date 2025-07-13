@@ -36,33 +36,39 @@
     <div class="bg-white rounded-xl shadow p-8">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold">Historique Des Transactions</h2>
-            <a href="/historique" class="text-[#d4b896]">Voir Plus →</a>
+            <a href="/listetransaction" class="text-[#d4b896]">Voir Plus →</a>
         </div>
         
         <table class="w-full">
             <thead class="bg-[#d4b896] text-white">
                 <tr>
                     <th class="py-3 px-4 text-left">Type-Transactions</th>
-                    <th class="py-3 px-4 text-center">Date</th>
+                    <th class="py-3 px-4 text-left">Bénéficiaire</th>
                     <th class="py-3 px-4 text-right">Montant</th>
+                    <th class="py-3 px-4 text-center">Date</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (isset($latestTransactions) && !empty($latestTransactions)): ?>
                     <?php foreach($latestTransactions as $transaction): ?>
-                        <tr class="border-b border-gray-100">
-                            <td class="py-3 px-4"><?= htmlspecialchars($transaction['type_transaction']) ?></td>
-                            <td class="py-3 px-4 text-center">
-                                <?= date('d/m/Y à H:i', strtotime($transaction['date'])) ?>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50">
+                            <td class="py-3 px-4">
+                                <?= htmlspecialchars($transaction['type_transaction'] ?? '') ?>
+                            </td>
+                            <td class="py-3 px-4">
+                                <?= htmlspecialchars($transaction['numero_telephone'] ?? '') ?>
                             </td>
                             <td class="py-3 px-4 text-right <?= $transaction['montant'] > 0 ? 'text-green-600' : 'text-red-600' ?>">
-                                <?= number_format($transaction['montant'], 0, ',', ' ') ?> CFA
+                                <?= number_format(abs($transaction['montant']), 0, ',', ' ') ?> FCFA
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                <?= isset($transaction['date_transaction']) ? date('d/m/Y H:i', strtotime($transaction['date_transaction'])) : '' ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="3" class="py-4 text-center text-gray-500">
+                        <td colspan="4" class="py-4 text-center text-gray-500">
                             Aucune transaction disponible
                         </td>
                     </tr>
