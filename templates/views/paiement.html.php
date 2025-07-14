@@ -5,22 +5,22 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer">
             <h2 class="text-xl font-bold mb-2">Woyofal</h2>
-            <img src="/images/uploads/icones/woyofal.svg" alt="Woyofal" class="w-12 h-12 mb-2">
+            <!-- <img src="/images/uploads/icones/woyofal.svg" alt="Woyofal" class="w-12 h-12 mb-2"> -->
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer">
             <h2 class="text-xl font-bold mb-2">BOUTIQUE</h2>
-            <img src="/images/uploads/icones/boutique.svg" alt="Boutique" class="w-12 h-12 mb-2">
+            <!-- <img src="/images/uploads/icones/boutique.svg" alt="Boutique" class="w-12 h-12 mb-2"> -->
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer">
             <h2 class="text-xl font-bold mb-2">Pass internet</h2>
-            <img src="/images/uploads/icones/internet.svg" alt="Pass internet" class="w-12 h-12 mb-2">
+            <!-- <img src="/images/uploads/icones/internet.svg" alt="Pass internet" class="w-12 h-12 mb-2"> -->
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer">
             <h2 class="text-xl font-bold mb-2">Voir Plus</h2>
-            <img src="/images/uploads/icones/plus.svg" alt="Voir plus" class="w-12 h-12 mb-2">
+            <!-- <img src="/images/uploads/icones/plus.svg" alt="Voir plus" class="w-12 h-12 mb-2"> -->
         </div>
     </div>
 

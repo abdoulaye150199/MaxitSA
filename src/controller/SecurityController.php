@@ -27,7 +27,6 @@ class SecurityController extends AbstractController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $code = $_POST['code'] ?? '';
             
-            // Validation du code
             if (empty($code)) {
                 $errors['code'] = 'Le code secret est obligatoire.';
             } elseif (!preg_match('/^[0-9]{4}$/', $code)) {
@@ -35,36 +34,46 @@ class SecurityController extends AbstractController
             }
 
             if (empty($errors)) {
-                $authenticatedUser = $this->userRepository->findByCode($code);
+                // Debug log
+                error_log('Tentative de connexion avec le code: ' . $code);
                 
-                if ($authenticatedUser) {
-                    $this->session->set('user_id', $authenticatedUser->getId());
-                    $this->session->set('user', [
-                        'id' => $authenticatedUser->getId(),
-                        'nom' => $authenticatedUser->getNom(),
-                        'prenom' => $authenticatedUser->getPrenom(),
-                        'numero' => $authenticatedUser->getNumero(),
-                        'type' => $authenticatedUser->getTypeUserValue()
-                    ]);
+                $user = $this->userRepository->findByCode($code);
+                
+                if ($user) {
+                    // Debug log
+                    error_log('Utilisateur trouvé - Type: ' . $user->getTypeUserValue());
+                    
+                    $userData = [
+                        'id' => $user->getId(),
+                        'nom' => $user->getNom(),
+                        'prenom' => $user->getPrenom(),
+                        'numero' => $user->getNumero(),
+                        'type' => $user->getTypeUserValue()
+                    ];
+                    
+                    $this->session->set('user', $userData);
+                    error_log('Session user data: ' . print_r($userData, true));
 
-                    // Redirection selon le type d'utilisateur
-                    if ($authenticatedUser->getTypeUserValue() === 'serviceClient') {
+                    if ($user->getTypeUserValue() === 'serviceClient') {
                         $this->redirect('/service-commercial');
-                    } else {
-                        $this->redirect('/accueil');
+                        return;
                     }
+                    
+                    $this->redirect('/accueil');
                     return;
-                } else {
-                    $error = "Code secret incorrect";
                 }
+                
+                // Debug log
+                error_log('Aucun utilisateur trouvé pour le code: ' . $code);
+                $error = "Code secret incorrect";
             }
         }
 
         $this->layout = 'base.login.html.layout.php';
-        $this->renderView('login', [
+        return $this->renderView('login', [
             'error' => $error,
             'errors' => $errors
-        ]);   
+        ]);
     }
 
     public function logout()

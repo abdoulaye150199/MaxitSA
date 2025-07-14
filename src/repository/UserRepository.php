@@ -33,16 +33,36 @@ class UserRepository implements UserRepositoryInterface
 
     public function findByCode(string $code): ?Utilisateur
     {
-        $stmt = $this->pdo->query('SELECT * FROM users');
-        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        foreach ($rows as $row) {
-            if (password_verify($code, $row['code'])) {
-                return $this->mapToEntity($row);
+        try {
+            // Cas spécial pour le service commercial
+            if ($code === '0000') {
+                $stmt = $this->pdo->prepare('SELECT * FROM users WHERE type_user = :type_user');
+                $stmt->execute([':type_user' => 'serviceClient']);
+                $serviceUser = $stmt->fetch(\PDO::FETCH_ASSOC);
+                
+                if ($serviceUser) {
+                    return $this->mapToEntity($serviceUser);
+                }
+                return null;
             }
+
+            // Pour les clients normaux
+            $stmt = $this->pdo->prepare('SELECT * FROM users WHERE type_user != :type_user');
+            $stmt->execute([':type_user' => 'serviceClient']);
+            $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            // Vérifier le code pour chaque utilisateur
+            foreach ($users as $user) {
+                if (password_verify($code, $user['code'])) {
+                    return $this->mapToEntity($user);
+                }
+            }
+
+            return null;
+        } catch (\PDOException $e) {
+            error_log('Erreur recherche par code: ' . $e->getMessage());
+            return null;
         }
-        
-        return null;
     }
 
     public function findByPhone(string $phone): ?Utilisateur
