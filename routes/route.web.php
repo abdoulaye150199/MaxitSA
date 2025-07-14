@@ -56,29 +56,20 @@ $routes = [
         'action' => 'index',
         'middlewares' => []
     ],
-<<<<<<< HEAD
     
     // Routes Service Commercial
-=======
->>>>>>> d94ccfcb5855e3cd1c2dfcdaef66f1136acaf692
     '/service-commercial' => [
         'controller' => 'App\\Controller\\ServiceCommercialController',
         'action' => 'index',
         'middlewares' => ['auth']
     ],
-<<<<<<< HEAD
     
-=======
->>>>>>> d94ccfcb5855e3cd1c2dfcdaef66f1136acaf692
     '/service-commercial/search' => [
         'controller' => 'App\\Controller\\ServiceCommercialController',
         'action' => 'searchAccount',
         'middlewares' => ['auth']
     ],
-<<<<<<< HEAD
     
-=======
->>>>>>> d94ccfcb5855e3cd1c2dfcdaef66f1136acaf692
     '/service-commercial/transactions' => [
         'controller' => 'App\\Controller\\ServiceCommercialController',
         'action' => 'allTransactions',

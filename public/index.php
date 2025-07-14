@@ -24,10 +24,6 @@ require_once __DIR__ . '/../app/config/bootstrap.php';
 // Charger les routes
 require_once __DIR__ . '/../routes/route.web.php';
 
-// Debug: afficher l'URI demandée
-error_log('URI demandée: ' . $_SERVER['REQUEST_URI']);
-error_log('Routes disponibles: ' . print_r(array_keys($routes), true));
-
 // Initialiser l'application
 use App\Core\App;
 use App\Core\Router;
