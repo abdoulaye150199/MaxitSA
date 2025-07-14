@@ -47,7 +47,12 @@ class SecurityController extends AbstractController
                         'type' => $authenticatedUser->getTypeUserValue()
                     ]);
 
-                    $this->redirect('/accueil');
+                    // Redirection selon le type d'utilisateur
+                    if ($authenticatedUser->getTypeUserValue() === 'serviceClient') {
+                        $this->redirect('/service-commercial');
+                    } else {
+                        $this->redirect('/accueil');
+                    }
                     return;
                 } else {
                     $error = "Code secret incorrect";
