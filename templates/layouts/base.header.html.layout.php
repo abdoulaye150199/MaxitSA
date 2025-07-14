@@ -1,4 +1,4 @@
-<div class="flex items-center justify-between pl-24 pr-10 py-6 border-b border-gray-200 bg-white">
+<div class="flex items-center justify-between pl-20 pr-8 py-2 border-b border-gray-200 bg-white">
     <span class="font-bold text-xl">Abdoulaye Diallo</span>
     <div class="flex-1 flex justify-center">
         <div class="w-[50px] h-[50px] bg-[#d4b896] rounded-lg flex items-center justify-center">
