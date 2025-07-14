@@ -76,6 +76,12 @@
     </div>
 </div>
 
+<?php if ($flash = $this->getFlash()): ?>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <?= htmlspecialchars($flash['message']) ?>
+    </div>
+<?php endif; ?>
+
 <style>
     /* Masquer la barre de défilement tout en gardant la fonctionnalité */
     .scrollbar-hide {

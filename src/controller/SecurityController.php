@@ -5,12 +5,13 @@ namespace App\Controller;
 use App\Core\Abstract\AbstractController;
 use App\Core\App;
 use App\Core\Session;
+use App\Core\Validator;
 use App\Repository\UserRepository;
 
 class SecurityController extends AbstractController
 {
     private UserRepository $userRepository;
-    protected Session $session; // Changed from private to protected to match parent class
+    protected Session $session; 
 
     public function __construct(UserRepository $userRepository)
     {
@@ -22,20 +23,12 @@ class SecurityController extends AbstractController
     public function login()
     {
         $error = null;
-        $errors = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $code = $_POST['code'] ?? '';
-            
-            // Validation du code
-            if (empty($code)) {
-                $errors['code'] = 'Le code secret est obligatoire.';
-            } elseif (!preg_match('/^[0-9]{4}$/', $code)) {
-                $errors['code'] = 'Le code secret doit contenir exactement 4 chiffres.';
-            }
+            $errors = Validator::validateLogin($_POST);
 
             if (empty($errors)) {
-                $authenticatedUser = $this->userRepository->findByCode($code);
+                $authenticatedUser = $this->userRepository->findByCode($_POST['code']);
                 
                 if ($authenticatedUser) {
                     $this->session->set('user_id', $authenticatedUser->getId());
@@ -47,24 +40,25 @@ class SecurityController extends AbstractController
                         'type' => $authenticatedUser->getTypeUserValue()
                     ]);
 
-                    // Redirection selon le type d'utilisateur
                     if ($authenticatedUser->getTypeUserValue() === 'serviceClient') {
                         $this->redirect('/service-commercial');
                     } else {
                         $this->redirect('/accueil');
                     }
                     return;
-                } else {
-                    $error = "Code secret incorrect";
                 }
+                $error = "Code secret incorrect";
             }
+            
+            $this->layout = 'base.login.html.layout.php';
+            return $this->renderView('login', [
+                'error' => $error,
+                'errors' => $errors ?? []
+            ]);
         }
 
         $this->layout = 'base.login.html.layout.php';
-        $this->renderView('login', [
-            'error' => $error,
-            'errors' => $errors
-        ]);   
+        return $this->renderView('login', ['errors' => []]);
     }
 
     public function logout()

@@ -26,21 +26,55 @@ class Validator
         return self::$errors;
     }
 
+    public static function validateLogin(array $data): array
+    {
+        return self::validate($data, [
+            'code' => [
+                'required' => ErrorMessages::get('code_required'),
+                'code_secret' => ErrorMessages::get('code_invalid')
+            ]
+        ]);
+    }
+
+    public static function validateSearchAccount(array $data): array
+    {
+        return self::validate($data, [
+            'numero' => [
+                'required' => ErrorMessages::get('numero_required'),
+                'telephone_valid' => ErrorMessages::get('numero_invalid')
+            ]
+        ]);
+    }
+
+    public static function validateSecondaryAccount(array $data): array
+    {
+        return self::validate($data, [
+            'numero_telephone' => [
+                'required' => ErrorMessages::get('numero_required'),
+                'telephone_valid' => ErrorMessages::get('numero_invalid')
+            ],
+            'code_secret' => [
+                'required' => ErrorMessages::get('code_required'),
+                'code_secret' => ErrorMessages::get('code_invalid')
+            ],
+            'montant_initial' => [
+                'required' => ErrorMessages::get('montant_required'),
+                'min_amount' => ErrorMessages::get('montant_invalid')
+            ]
+        ]);
+    }
+
     private static function validateRule(string $rule, $value, string $field): bool
     {
         switch ($rule) {
             case 'required':
                 return !empty($value);
-            
             case 'telephone_valid':
-                return preg_match('/^(77|78)[0-9]{7}$/', $value);
-            
-            case 'cni_valid':
-                return preg_match('/^(1|2)[0-9]{12}$/', $value);
-            
+                return preg_match('/^[0-9]{9}$/', $value);
             case 'code_secret':
                 return preg_match('/^[0-9]{4}$/', $value);
-            
+            case 'min_amount':
+                return is_numeric($value) && $value >= 500;
             default:
                 return true;
         }
