@@ -55,5 +55,20 @@ $routes = [
         'controller' => 'App\\Controller\\TransferController',
         'action' => 'index',
         'middlewares' => []
+    ],
+    '/service-commercial' => [
+        'controller' => 'App\\Controller\\ServiceCommercialController',
+        'action' => 'index',
+        'middlewares' => ['auth']
+    ],
+    '/service-commercial/search' => [
+        'controller' => 'App\\Controller\\ServiceCommercialController',
+        'action' => 'searchAccount',
+        'middlewares' => ['auth']
+    ],
+    '/service-commercial/transactions'=> [
+        'controller' => 'App\\Controller\\ServiceCommercialController',
+        'action' => 'allTransactions',
+        'middlewares' => ['auth']
     ]
 ];
