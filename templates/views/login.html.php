@@ -28,6 +28,8 @@
             name="code"
             placeholder="ENTREZ VOTRE CODE SECRET"
             value="<?= htmlspecialchars($_POST['code'] ?? '') ?>"
+            maxlength="4"
+            pattern="[0-9]{4}"
             class="border-2 <?= isset($errors['code']) ? 'border-red-500' : 'border-custom-border' ?> rounded-lg px-6 py-4 mb-6 w-[500px] text-custom-brown placeholder-custom-border text-center text-lg"
         />
         
