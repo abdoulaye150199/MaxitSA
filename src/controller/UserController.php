@@ -3,16 +3,19 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
-use App\Core\Database; // Ajout de l'import manquant
+use App\Core\Database;
 use App\Service\Interfaces\UserServiceInterface;
 use App\Service\Interfaces\ValidationServiceInterface;
 use App\Repository\TransactionRepository;
+use App\Repository\CompteRepository; // Add this import
+use App\Core\Validator;
 
 class UserController extends AbstractController
 {
     private UserServiceInterface $userService;
     private ValidationServiceInterface $validationService;
-    private $transactionRepository;
+    private TransactionRepository $transactionRepository;
+    private CompteRepository $compteRepository; // Add this property
 
     public function __construct(
         UserServiceInterface $userService,
@@ -23,6 +26,7 @@ class UserController extends AbstractController
         $this->userService = $userService;
         $this->validationService = $validationService;
         $this->transactionRepository = new TransactionRepository($database->getPdo());
+        $this->compteRepository = new CompteRepository($database); // Initialize CompteRepository
     }
 
     public function store()
@@ -111,32 +115,41 @@ class UserController extends AbstractController
 
     public function createCompte()
     {
-        $numero = $_POST['numero_telephone'] ?? '';
-        $code = $_POST['code_secret'] ?? '';
-        $montant = $_POST['montant_initial'] ?? '';
-        
-        $errors = [];
-        
-        // Validation
-        if (empty($numero) || !preg_match('/^[0-9]{9}$/', $numero)) {
-            $errors['numero_telephone'] = 'Numéro de téléphone invalide';
-        }
-        
-        if (empty($code) || !preg_match('/^[0-9]{4}$/', $code)) {
-            $errors['code_secret'] = 'Le code secret doit contenir 4 chiffres';
-        }
-        
-        if (empty($montant) || $montant < 500) {
-            $errors['montant_initial'] = 'Le montant initial doit être d\'au moins 500 FCFA';
-        }
-        
+        $data = [
+            'numero_telephone' => $_POST['numero_telephone'] ?? '',
+            'code_secret' => $_POST['code_secret'] ?? '',
+            'montant_initial' => (float)($_POST['montant_initial'] ?? 0)
+        ];
+
+        $errors = Validator::validateSecondaryAccount($data);
+
         if (!empty($errors)) {
             return $this->renderView('compte', ['errors' => $errors]);
         }
-        
-        // TODO: Créer le compte secondaire dans la base de données
-        
-        // Rediriger vers la page d'accueil avec un message de succès
-        $this->redirect('/accueil');
+
+        // Récupérer l'ID du client connecté
+        $user = $this->session->get('user');
+        if (!$user || !isset($user['id'])) {
+            $this->redirect('/login');
+            return;
+        }
+
+        // Créer le compte secondaire
+        $compteData = [
+            'numero_telephone' => $data['numero_telephone'],
+            'code_secret' => $data['code_secret'],
+            'montant_initial' => $data['montant_initial'],
+            'id_client' => $user['id']
+        ];
+
+        if ($this->compteRepository->createSecondaryCompte($compteData)) {
+            $this->setFlash('success', 'Compte secondaire créé avec succès');
+            $this->redirect('/accueil');
+            return;
+        }
+
+        return $this->renderView('compte', [
+            'errors' => ['general' => 'Erreur lors de la création du compte']
+        ]);
     }
 }

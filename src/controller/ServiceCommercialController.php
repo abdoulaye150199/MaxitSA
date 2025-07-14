@@ -5,19 +5,23 @@ namespace App\Controller;
 use App\Core\Abstract\AbstractController;
 use App\Repository\UserRepository;
 use App\Repository\TransactionRepository;
+use App\Repository\CompteRepository;
 use App\Core\Database;
 use App\Core\App;
+use App\Core\Validator;
 
 class ServiceCommercialController extends AbstractController
 {
     private UserRepository $userRepository;
     private TransactionRepository $transactionRepository;
+    private CompteRepository $compteRepository;
 
     public function __construct(UserRepository $userRepository, Database $database)
     {
         parent::__construct();
         $this->userRepository = $userRepository;
         $this->transactionRepository = new TransactionRepository($database->getPdo());
+        $this->compteRepository = new CompteRepository($database);
     }
 
     public function index()
@@ -31,15 +35,15 @@ class ServiceCommercialController extends AbstractController
         $this->layout = 'base.service.html.layout.php';
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $numero = $_POST['numero'] ?? '';
+            $errors = Validator::validateSearchAccount($_POST);
             
-            if (empty($numero)) {
+            if (!empty($errors)) {
                 return $this->renderView('service-commercial/dashboard', [
-                    'error' => 'Veuillez saisir un numéro de téléphone'
+                    'error' => reset($errors)
                 ]);
             }
 
-            // Rechercher le compte par numéro
+            $numero = $_POST['numero'];
             $user = $this->userRepository->findByPhone($numero);
             
             if (!$user) {
@@ -48,16 +52,20 @@ class ServiceCommercialController extends AbstractController
                 ]);
             }
 
-            // Récupérer les 10 dernières transactions
+            // Get the account details
+            $compte = $this->compteRepository->findByNumero($numero);
+            if (!$compte) {
+                return $this->renderView('service-commercial/dashboard', [
+                    'error' => 'Aucun compte associé à ce numéro'
+                ]);
+            }
+
             $transactions = $this->transactionRepository->findTransactionsByPhone($numero, 10);
             
-            // Simuler le solde (à adapter selon votre logique métier)
-            $solde = 1500; // À remplacer par la vraie logique de calcul du solde
-
             return $this->renderView('service-commercial/account-details', [
                 'user' => $user,
                 'numero' => $numero,
-                'solde' => $solde,
+                'solde' => $compte->getSolde(),
                 'transactions' => $transactions
             ]);
         }
