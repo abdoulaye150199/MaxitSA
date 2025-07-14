@@ -97,6 +97,7 @@ class TransactionRepository {
         }
 
         $whereClause = implode(' AND ', $whereConditions);
+        
 
         $query = "SELECT 
                     t.id as id_transaction,
