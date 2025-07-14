@@ -10,7 +10,6 @@
         </div>
     <?php endif; ?>
 
-    <!-- Formulaire de recherche -->
     <div class="bg-white rounded-xl shadow-lg p-8 max-w-md mx-auto">
         <form method="post" action="/service-commercial/search" class="space-y-6">
             <div>

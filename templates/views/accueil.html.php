@@ -53,13 +53,13 @@
                                     <?= htmlspecialchars($transaction['type_transaction'] ?? '') ?>
                                 </td>
                                 <td class="py-3 px-4">
-                                    <?= htmlspecialchars($transaction['numero'] ?? '') ?>
+                                    <?= htmlspecialchars($transaction['numero_telephone'] ?? '') ?>
                                 </td>
                                 <td class="py-3 px-4 text-right <?= $transaction['montant'] > 0 ? 'text-green-600' : 'text-red-600' ?>">
                                     <?= number_format(abs($transaction['montant']), 0, ',', ' ') ?> FCFA
                                 </td>
                                 <td class="py-3 px-4 text-center">
-                                    <?= isset($transaction['date']) ? date('d/m/Y H:i', strtotime($transaction['date'])) : '' ?>
+                                    <?= isset($transaction['date_transaction']) ? date('d/m/Y H:i', strtotime($transaction['date_transaction'])) : '' ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

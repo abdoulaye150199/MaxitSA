@@ -1,27 +1,21 @@
 <?php
 
-// Charger les helpers
 require_once __DIR__ . '/helpers.php';
 
-// Initialiser les middlewares
 use App\Core\Middleware;
 use App\Core\App;
 use App\Core\Database;
 use App\Core\Session;
 use App\Repository\UserRepository;
 
-// Register dependencies
 $app = App::getInstance();
 
-// Register database
 $database = Database::getInstance();
 $app->setDependency('database', $database);
 
-// Register session
 $session = Session::getInstance();
 $app->setDependency('session', $session);
 
-// Register repositories
 $userRepository = new UserRepository($database);
 $app->setDependency('userRepository', $userRepository);
 
