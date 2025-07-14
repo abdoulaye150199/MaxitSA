@@ -10,9 +10,13 @@ $start = microtime(true);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Charger les variables d'environnement
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
+// Load environment variables
+try {
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+    $dotenv->load();
+} catch (\Dotenv\Exception\InvalidPathException $e) {
+    die('Error: .env file not found. Please create one in the project root directory.');
+}
 
 // Charger la configuration
 require_once __DIR__ . '/../app/config/bootstrap.php';
