@@ -55,12 +55,9 @@
                 }
             });
         }
-        
-        // Appeler la fonction au chargement de la page
+
         document.addEventListener('DOMContentLoaded', setActiveTab);
         
-        // Simuler l'activation d'un onglet (pour la démonstration)
-        // Vous pouvez supprimer cette partie dans votre code réel
         setTimeout(() => {
             const paiementLink = document.querySelector('[href="/"]');
             paiementLink.classList.add('bg-[#d4b896]', 'shadow-lg');

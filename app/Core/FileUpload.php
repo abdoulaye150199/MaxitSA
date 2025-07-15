@@ -19,37 +19,29 @@ class FileUpload
         }
     }
 
-    /**
-     * Upload un fichier
-     */
     public function upload(array $file, string $directory = '', string $prefix = ''): array
     {
         if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
             return ['success' => false, 'error' => 'Aucun fichier uploadé'];
         }
 
-        // Vérifier le type
         if (!in_array($file['type'], $this->allowedTypes)) {
             return ['success' => false, 'error' => 'Type de fichier non autorisé'];
         }
 
-        // Vérifier la taille
         if ($file['size'] > $this->maxSize) {
             return ['success' => false, 'error' => 'Fichier trop volumineux (max 5MB)'];
         }
 
-        // Créer le dossier de destination
         $targetDir = $this->uploadPath . $directory;
         if (!is_dir($targetDir)) {
             mkdir($targetDir, 0755, true);
         }
 
-        // Générer un nom unique
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
         $filename = $prefix . '_' . uniqid() . '.' . $extension;
         $destination = $targetDir . '/' . $filename;
 
-        // Déplacer le fichier
         if (move_uploaded_file($file['tmp_name'], $destination)) {
             return [
                 'success' => true,
@@ -62,9 +54,7 @@ class FileUpload
         return ['success' => false, 'error' => 'Erreur lors de l\'upload'];
     }
 
-    /**
-     * Supprimer un fichier
-     */
+
     public function delete(string $path): bool
     {
         $fullPath = $this->uploadPath . $path;
@@ -74,9 +64,6 @@ class FileUpload
         return false;
     }
 
-    /**
-     * Valider un fichier
-     */
     public function validate(array $file): array
     {
         $errors = [];
