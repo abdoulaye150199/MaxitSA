@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Fonctions utilitaires globales
- */
-
 if (!function_exists('dd')) {
     function dd(...$vars) {
         echo '<pre>';
@@ -23,7 +19,6 @@ if (!function_exists('env')) {
 
 if (!function_exists('config')) {
     function config(string $key, $default = null) {
-        // Implémentation simple pour récupérer des configs
         return $default;
     }
 }

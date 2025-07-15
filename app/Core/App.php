@@ -2,23 +2,30 @@
 
 namespace App\Core;
 
-use App\Providers\DatabaseServiceProvider;
-use App\Providers\RepositoryServiceProvider;
-use App\Providers\ServiceServiceProvider;
-use App\Providers\SessionServiceProvider;
+use App\Core\Database;
+use App\Core\Session;
+use App\Repository\UserRepository;
+use App\Repository\TransactionRepository;
+use App\Service\UserService;
+use App\Service\SmsService;
+use App\Service\ValidationService;
+use App\Service\FileUploadService;
+use App\Service\Interfaces\UserServiceInterface;
+use App\Service\Interfaces\SmsServiceInterface;
+use App\Service\Interfaces\ValidationServiceInterface;
+use App\Service\Interfaces\FileUploadServiceInterface;
+use App\Repository\Interfaces\UserRepositoryInterface;
 
 class App
 {
     private static ?App $instance = null;
     private Container $container;
-    private array $providers = [];
     private array $dependencies = [];
 
     private function __construct()
     {
         $this->container = Container::getInstance();
-        $this->registerProviders();
-        $this->bootProviders();
+        $this->registerServices();
     }
 
     public static function getInstance(): self
@@ -27,6 +34,31 @@ class App
             self::$instance = new self();
         }
         return self::$instance;
+    }
+
+    private function registerServices(): void 
+    {
+        // Database Service
+        $this->container->singleton(Database::class, function () {
+            return Database::getInstance();
+        });
+
+        // Session Service
+        $this->container->singleton(Session::class, function () {
+            return Session::getInstance();
+        });
+
+        // Repository Services
+        $this->container->bind(UserRepositoryInterface::class, function($container) {
+            $database = $container->resolve(Database::class);
+            return new UserRepository($database);
+        });
+
+        // Application Services
+        $this->container->bind(UserServiceInterface::class, UserService::class);
+        $this->container->bind(SmsServiceInterface::class, SmsService::class);
+        $this->container->bind(ValidationServiceInterface::class, ValidationService::class);
+        $this->container->bind(FileUploadServiceInterface::class, FileUploadService::class);
     }
 
     public static function session(): Session
@@ -52,28 +84,5 @@ class App
     public function setDependency(string $name, $dependency): void
     {
         $this->dependencies[$name] = $dependency;
-    }
-
-    private function registerProviders(): void
-    {
-        $providers = [
-            DatabaseServiceProvider::class,
-            RepositoryServiceProvider::class,
-            ServiceServiceProvider::class,
-            SessionServiceProvider::class,
-        ];
-
-        foreach ($providers as $providerClass) {
-            $provider = new $providerClass($this->container);
-            $provider->register();
-            $this->providers[] = $provider;
-        }
-    }
-
-    private function bootProviders(): void
-    {
-        foreach ($this->providers as $provider) {
-            $provider->boot();
-        }
     }
 }

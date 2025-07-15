@@ -10,6 +10,7 @@ use App\Repository\UserRepository;
 
 $app = App::getInstance();
 
+// Initialiser les dépendances de base
 $database = Database::getInstance();
 $app->setDependency('database', $database);
 
