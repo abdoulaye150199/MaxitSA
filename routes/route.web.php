@@ -36,10 +36,15 @@ $routes = [
         'action' => 'nouveauCompte',
         'middlewares' => []
     ],
+    '/compte/nouveau' => [
+        'controller' => 'App\\Controller\\UserController',
+        'action' => 'nouveauCompte',
+        'middlewares' => ['auth']
+    ],
     '/compte/create' => [
         'controller' => 'App\\Controller\\UserController',
         'action' => 'createCompte',
-        'middlewares' => []
+        'middlewares' => ['auth']
     ],
     '/paiement' => [
         'controller' => 'App\\Controller\\PaymentController',

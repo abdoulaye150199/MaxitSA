@@ -1,0 +1,48 @@
+services:
+  router:
+    class: App\Core\Router
+    shared: true
+
+  database:
+    class: App\Core\Database
+    factory: getInstance
+    shared: true
+
+  session:
+    class: App\Core\Session
+    factory: getInstance
+    shared: true
+
+  validator:
+    class: App\Core\Validator
+    shared: true
+
+  userRepository:
+    class: App\Repository\UserRepository
+    arguments: ['@database']
+
+  compteRepository:
+    class: App\Repository\CompteRepository
+    arguments: ['@database']
+
+  transactionRepository:
+    class: App\Repository\TransactionRepository
+    arguments: ['@database.getPdo'] 
+
+
+  validationService:
+    class: App\Service\ValidationService
+
+  fileUploadService:
+    class: App\Service\FileUploadService
+
+  smsService:
+    class: App\Service\SmsService
+
+  userService:
+    class: App\Service\UserService
+    arguments:
+      - '@userRepository'
+      - '@validationService'
+      - '@fileUploadService'
+      - '@smsService'

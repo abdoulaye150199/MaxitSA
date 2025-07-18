@@ -2,25 +2,64 @@
 
 namespace App\Core;
 
-use App\Core\Errors\ErrorMessages;
+use App\Core\Errors\{ValidationError, LoginError, AccountError};
 
 class Validator
 {
     private static array $errors = [];
+    private static array $validationRules = [];
+    private static array $validationMessages = [];
+
+    private static function initializeRules(): void 
+    {
+        if (empty(self::$validationRules)) {
+            self::$validationRules = [
+                'telephone' => [
+                    'pattern' => '/^(7[056789])[0-9]{7}$/',
+                    'validator' => fn($value) => preg_match('/^(7[056789])[0-9]{7}$/', $value)
+                ],
+                'code_secret' => [
+                    'pattern' => '/^[0-9]{4}$/',
+                    'validator' => fn($value) => preg_match('/^[0-9]{4}$/', $value)
+                ],
+                'min_amount' => [
+                    'min' => 500,
+                    'validator' => fn($value) => is_numeric($value) && $value >= 0
+                ]
+            ];
+        }
+    }
+
+    private static function validateField(string $field, $value, array $rules): void
+    {
+        foreach ($rules as $rule => $customMessage) {
+            if (!isset(self::$validationRules[$rule])) {
+                continue;
+            }
+
+            $validator = self::$validationRules[$rule]['validator'];
+            
+            if (!$validator($value)) {
+                self::$errors[$field] = $customMessage ?: self::$validationMessages[$rule];
+                break;
+            }
+        }
+    }
 
     public static function validate(array $data, array $rules): array
     {
         self::$errors = [];
+        self::initializeRules();
 
         foreach ($rules as $field => $fieldRules) {
-            $value = $data[$field] ?? '';
-            
-            foreach ($fieldRules as $rule => $message) {
-                if (!self::validateRule($rule, $value, $field)) {
-                    self::$errors[$field] = $message ?: ErrorMessages::get($rule, $field);
-                    break;
+            if (!isset($data[$field])) {
+                if (isset($fieldRules['required'])) {
+                    self::$errors[$field] = $fieldRules['required'] ?: self::$validationMessages['required'];
                 }
+                continue;
             }
+
+            self::validateField($field, $data[$field], $fieldRules);
         }
 
         return self::$errors;
@@ -28,56 +67,51 @@ class Validator
 
     public static function validateLogin(array $data): array
     {
-        return self::validate($data, [
+        $rules = [
             'code' => [
-                'required' => ErrorMessages::get('code_required'),
-                'code_secret' => ErrorMessages::get('code_invalid')
+                'required' => LoginError::CODE_REQUIRED->value,
+                'code_secret' => LoginError::CODE_INVALID->value
             ]
-        ]);
-    }
+        ];
 
-    public static function validateSearchAccount(array $data): array
-    {
-        return self::validate($data, [
-            'numero' => [
-                'required' => ErrorMessages::get('numero_required'),
-                'telephone_valid' => ErrorMessages::get('numero_invalid')
-            ]
-        ]);
+        return self::validate($data, $rules);
     }
 
     public static function validateSecondaryAccount(array $data): array
     {
-        return self::validate($data, [
-            'numero_telephone' => [
-                'required' => ErrorMessages::get('numero_required'),
-                'telephone_valid' => ErrorMessages::get('numero_invalid')
-            ],
-            'code_secret' => [
-                'required' => ErrorMessages::get('code_required'),
-                'code_secret' => ErrorMessages::get('code_invalid')
-            ],
-            'montant_initial' => [
-                'required' => ErrorMessages::get('montant_required'),
-                'min_amount' => ErrorMessages::get('montant_invalid')
-            ]
-        ]);
+        $errors = [];
+
+        // Validation du numéro de téléphone
+        if (empty($data['numero_telephone'])) {
+            $errors['numero_telephone'] = AccountError::NUMERO_REQUIRED->value;
+        } elseif (!preg_match('/^(7[056789])[0-9]{7}$/', $data['numero_telephone'])) {
+            $errors['numero_telephone'] = AccountError::NUMERO_INVALID->value;
+        }
+
+        // Validation du code secret
+        if (empty($data['code_secret'])) {
+            $errors['code_secret'] = AccountError::CODE_REQUIRED->value;
+        } elseif (!preg_match('/^[0-9]{4}$/', $data['code_secret'])) {
+            $errors['code_secret'] = AccountError::CODE_INVALID->value;
+        }
+
+        return $errors;
     }
 
-    private static function validateRule(string $rule, $value, string $field): bool
+    public static function validateUserExists($user): bool
     {
-        switch ($rule) {
-            case 'required':
-                return !empty($value);
-            case 'telephone_valid':
-                return preg_match('/^[0-9]{9}$/', $value);
-            case 'code_secret':
-                return preg_match('/^[0-9]{4}$/', $value);
-            case 'min_amount':
-                return is_numeric($value) && $value >= 500;
-            default:
-                return true;
+        return !empty($user) && isset($user['id']);
+    }
+
+    public static function validateCodeSecret(string $code): array
+    {
+        $errors = [];
+        if (empty($code)) {
+            $errors['code_secret'] = AccountError::CODE_REQUIRED->value;
+        } elseif (!preg_match('/^[0-9]{4}$/', $code)) {
+            $errors['code_secret'] = AccountError::CODE_INVALID->value;
         }
+        return $errors;
     }
 
     public static function getErrors(): array

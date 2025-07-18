@@ -2,24 +2,18 @@
 
 require_once __DIR__ . '/helpers.php';
 
-use App\Core\Middleware;
+use Dotenv\Dotenv;
 use App\Core\App;
-use App\Core\Database;
-use App\Core\Session;
-use App\Repository\UserRepository;
+use App\Core\Middleware;
 
-$app = App::getInstance();
+// Charger les variables d'environnement
+$dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
+$dotenv->load();
 
-// Initialiser les dépendances de base
-$database = Database::getInstance();
-$app->setDependency('database', $database);
+// Initialiser l'application
+App::init();
 
-$session = Session::getInstance();
-$app->setDependency('session', $session);
-
-$userRepository = new UserRepository($database);
-$app->setDependency('userRepository', $userRepository);
-
+// Bootstrap des middlewares
 Middleware::bootstrap();
 
 // Définir les constantes de configuration

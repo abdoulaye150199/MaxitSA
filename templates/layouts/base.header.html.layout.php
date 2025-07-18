@@ -13,8 +13,15 @@
             <div id="accountDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
                 <div class="py-2 px-4">
                     <p class="text-gray-700 font-medium mb-2">Gérer mes comptes</p>
-                    <a href="/compte" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">Nouveau Compte</a>
-                    <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">Changer de Compte</a>
+                    <a 
+                        href="/compte/nouveau" 
+                        class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                    >
+                        Nouveau Compte
+                    </a>
+                    <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                        Changer de Compte
+                    </a>
                 </div>
             </div>
         </div>
