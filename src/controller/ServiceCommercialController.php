@@ -33,27 +33,28 @@ class ServiceCommercialController extends AbstractController
         $this->layout = 'base.service.html.layout.php';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (empty($_POST['numero'])) {
+            $numeroRecherche = $_POST['numero'] ?? '';
+            $error = Validator::validateRequired($numeroRecherche, 'numero');
+            if ($error) {
                 return $this->renderHtml('service-commercial/dashboard', [
-                    'error' => 'Le numéro de compte est requis'
+                    'error' => $error,
+                    'numero' => $numeroRecherche
                 ]);
             }
 
-            $numeroRecherche = $_POST['numero'];
-            
-            // Recherche par numéro de compte (P-0001 ou S-0001)
-            if (preg_match('/^[PS]-\d{4}$/', $numeroRecherche)) {
+            // Recherche par numéro de compte
+            if (Validator::validateAccountNumber($numeroRecherche) === null) {
                 $compte = $this->compteRepository->findByNumeroCompte($numeroRecherche);
-            } 
-            // Recherche par numéro de téléphone
-            else {
-                $numero = str_replace(['+221', ' '], '', $numeroRecherche);
-                if (!preg_match('/^(7[056789])[0-9]{7}$/', $numero)) {
+            } else {
+                // Recherche par numéro de téléphone
+                $error = Validator::validatePhoneNumber($numeroRecherche);
+                if ($error) {
                     return $this->renderHtml('service-commercial/dashboard', [
-                        'error' => 'Format de numéro invalide',
-                        'numero' => $_POST['numero']
+                        'error' => $error,
+                        'numero' => $numeroRecherche
                     ]);
                 }
+                $numero = str_replace(['+221', ' '], '', $numeroRecherche);
                 $compte = $this->compteRepository->findByNumero($numero);
             }
 

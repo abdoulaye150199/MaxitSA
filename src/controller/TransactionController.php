@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
+use App\Core\Validator;
 use App\Repository\TransactionRepository;
 use App\Core\App;
 
@@ -21,6 +22,17 @@ class TransactionController extends AbstractController
     {
         $this->layout = 'base.solde.html.layout.php';
         
+        $filterData = [
+            'page' => $_GET['page'] ?? 1,
+            'date' => $_GET['date'] ?? '',
+            'type' => $_GET['type'] ?? ''
+        ];
+        
+        $errors = Validator::validateTransactionFilters($filterData);
+        if (!empty($errors)) {
+            return $this->renderHtml('listetransaction', ['errors' => $errors]);
+        }
+
         // Valider et sécuriser la page
         $page = max(1, filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT));
         $dateFilter = $_GET['date'] ?? '';

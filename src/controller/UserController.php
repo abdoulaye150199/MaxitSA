@@ -51,21 +51,14 @@ class UserController extends AbstractController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $registerData = $this->session->get('register_data');
             
-            if (!$registerData) {
+            if (Validator::validateUserSession($registerData)) {
                 $this->redirect('/sign');
                 return;
             }
 
-            if (empty($_POST['code_secret'])) {
-                return $this->renderHtml('code_secret', [
-                    'errors' => ['code_secret' => 'Le code secret est requis']
-                ]);
-            }
-
-            if (!preg_match('/^[0-9]{4}$/', $_POST['code_secret'])) {
-                return $this->renderHtml('code_secret', [
-                    'errors' => ['code_secret' => 'Le code doit contenir exactement 4 chiffres']
-                ]);
+            $errors = Validator::validateCodeSecretRegistration($_POST['code_secret'] ?? '');
+            if (!empty($errors)) {
+                return $this->renderHtml('code_secret', ['errors' => $errors]);
             }
 
             $userData = array_merge($registerData, ['code' => $_POST['code_secret']]);
