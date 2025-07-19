@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
 use App\Service\UserService;
-use App\Service\ValidationService;
 use App\Repository\TransactionRepository;
 use App\Repository\CompteRepository;
 use App\Core\App;
@@ -13,7 +12,6 @@ use App\Core\Validator;
 class UserController extends AbstractController
 {
     private UserService $userService;
-    private ValidationService $validationService;
     private TransactionRepository $transactionRepository;
     private CompteRepository $compteRepository;
 
@@ -21,7 +19,6 @@ class UserController extends AbstractController
     {
         parent::__construct();
         $this->userService = App::getDependency('userService');
-        $this->validationService = App::getDependency('validationService');
         $this->transactionRepository = App::getDependency('transactionRepository');
         $this->compteRepository = App::getDependency('compteRepository');
     }

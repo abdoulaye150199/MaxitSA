@@ -10,11 +10,13 @@ use App\Repository\CompteRepository;
 class CompteController extends AbstractController
 {
     private CompteRepository $compteRepository;
+    private Validator $validator;
 
     public function __construct()
     {
         parent::__construct();
         $this->compteRepository = App::getDependency('compteRepository');
+        $this->validator = App::getDependency('validator');
     }
 
     public function nouveauCompte()
@@ -55,14 +57,21 @@ class CompteController extends AbstractController
                 return $this->renderHtml('compte', ['errors' => $errors]);
             }
 
-            // Vérification du compte existant
+            // Vérifier si le numéro existe déjà
             if ($this->compteRepository->findByNumero($numeroTelephone)) {
                 return $this->renderHtml('compte', [
                     'errors' => ['numero_telephone' => 'Ce numéro est déjà utilisé pour un compte']
                 ]);
             }
 
-            // Création du compte
+            // S'assurer que le montant initial est au moins 500 FCFA
+            if ($data['montant_initial'] < 500) {
+                return $this->renderHtml('compte', [
+                    'errors' => ['montant_initial' => 'Le montant initial doit être d\'au moins 500 FCFA']
+                ]);
+            }
+
+            // Créer le compte
             if ($this->compteRepository->createSecondaryCompte($data)) {
                 $this->session->set('flash_success', 'Compte secondaire créé avec succès');
                 return $this->redirect('/accueil');

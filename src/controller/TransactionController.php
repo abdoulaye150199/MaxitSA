@@ -28,7 +28,7 @@ class TransactionController extends AbstractController
             'type' => $_GET['type'] ?? ''
         ];
         
-        $errors = Validator::validateTransactionFilters($filterData);
+        $errors = Validator::validateTransactionFilters($filterData); // Now using static method
         if (!empty($errors)) {
             return $this->renderHtml('listetransaction', ['errors' => $errors]);
         }

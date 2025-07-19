@@ -2,13 +2,8 @@
 
 namespace App\Core;
 
-use App\Core\Errors\{ValidationError, LoginError, AccountError};
-
-class Validator
+class Validator 
 {
-    private static array $errors = [];
-
-    // Règles de validation existantes
     private static array $validationRules = [
         'telephone' => [
             'pattern' => '/^(7[056789])[0-9]{7}$/',
@@ -20,107 +15,142 @@ class Validator
         ],
         'required' => [
             'message' => 'Le champ %s est obligatoire'
+        ],
+        'montant' => [
+            'min' => 500,
+            'message' => 'Le montant doit être d\'au moins %d FCFA'
+        ],
+        'account_number' => [
+            'pattern' => '/^[PS]-\d{4}$/',
+            'message' => 'Format de numéro de compte invalide'
+        ],
+        'file' => [
+            'max_size' => 5242880, // 5MB
+            'allowed_types' => ['image/jpeg', 'image/png', 'image/gif'],
+            'messages' => [
+                'upload_error' => 'Erreur lors de l\'upload du fichier',
+                'type_invalid' => 'Type de fichier non autorisé',
+                'size_invalid' => 'Fichier trop volumineux'
+            ]
         ]
     ];
 
-    // Nouvelle méthode pour valider la création de compte
-    public static function validateCompteCreation(array $data): array
-    {
-        $errors = [];
-
-        // Validation du numéro de téléphone
-        if (empty($data['numero_telephone'])) {
-            $errors['numero_telephone'] = 'Le numéro de téléphone est obligatoire';
-        } elseif (!preg_match(self::$validationRules['telephone']['pattern'], $data['numero_telephone'])) {
-            $errors['numero_telephone'] = self::$validationRules['telephone']['message'];
-        }
-
-        // Validation du code secret
-        if (empty($data['code_secret'])) {
-            $errors['code_secret'] = 'Le code secret est obligatoire';
-        } elseif (!preg_match(self::$validationRules['code_secret']['pattern'], $data['code_secret'])) {
-            $errors['code_secret'] = self::$validationRules['code_secret']['message'];
-        }
-
-        return $errors;
-    }
-
-    // Nouvelle méthode pour valider le login
-    public static function validateLogin(array $data): array
-    {
-        $errors = [];
-        
-        if (empty($data['code'])) {
-            $errors['code'] = 'Le code est requis';
-        } elseif (!preg_match(self::$validationRules['code_secret']['pattern'], $data['code'])) {
-            $errors['code'] = self::$validationRules['code_secret']['message'];
-        }
-
-        return $errors;
-    }
-
-    // Nouvelle méthode pour valider l'enregistrement utilisateur
-    public static function validateUserRegistration(array $data): array
-    {
-        $errors = [];
-        
-        $requiredFields = ['nom', 'prenom', 'numero', 'adresse'];
-        foreach ($requiredFields as $field) {
-            if (empty($data[$field])) {
-                $errors[$field] = sprintf(self::$validationRules['required']['message'], $field);
-            }
-        }
-
-        if (!empty($data['numero']) && !preg_match(self::$validationRules['telephone']['pattern'], $data['numero'])) {
-            $errors['numero'] = self::$validationRules['telephone']['message'];
-        }
-
-        return $errors;
-    }
-
-    // Validation du code secret
-    public static function validateCodeSecret(string $code): array
-    {
-        $errors = [];
-        
-        if (empty($code)) {
-            $errors['code_secret'] = 'Le code secret est obligatoire';
-        } elseif (!preg_match(self::$validationRules['code_secret']['pattern'], $code)) {
-            $errors['code_secret'] = self::$validationRules['code_secret']['message'];
-        }
-
-        return $errors;
-    }
-
-    public static function validatePhoneNumber(?string $numero): ?string
-    {
-        if (empty($numero)) {
-            return 'Le numéro est obligatoire';
-        }
-        $numero = str_replace(['+221', ' '], '', $numero);
-        if (!preg_match('/^(7[056789])[0-9]{7}$/', $numero)) {
-            return 'Format de numéro invalide';
-        }
-        return null;
-    }
-
-    public static function validateAccountNumber(?string $numeroCompte): ?string
-    {
-        if (empty($numeroCompte)) {
-            return 'Le numéro de compte est obligatoire';
-        }
-        if (!preg_match('/^[PS]-\d{4}$/', $numeroCompte)) {
-            return 'Format de numéro de compte invalide';
-        }
-        return null;
-    }
-
-    public static function validateRequired($value, $field): ?string
+    private static function validateRequiredField(string $field, $value): ?string 
     {
         if (empty($value)) {
-            return "Le champ $field est obligatoire";
+            return sprintf(self::$validationRules['required']['message'], $field);
         }
         return null;
+    }
+
+    // Pour les appels statiques externes
+    public static function validateRequired($value, string $field): ?string
+    {
+        return self::validateRequiredField($field, $value);
+    }
+
+    // Changer en méthode statique
+    private static function validate(array $data, array $rules): array 
+    {
+        $errors = [];
+        foreach ($rules as $field => $fieldRules) {
+            foreach ($fieldRules as $rule) {
+                $value = $data[$field] ?? null;
+                $error = match($rule) {
+                    'required' => self::validateRequiredField($field, $value),
+                    'telephone' => self::validatePattern('telephone', $value),
+                    'code_secret' => self::validatePattern('code_secret', $value),
+                    'account_number' => self::validatePattern('account_number', $value),
+                    'montant_min' => self::validateMinAmount($value ?? 0, self::$validationRules['montant']['min']),
+                    'file' => self::validateFile($value),
+                    default => null
+                };
+                if ($error) {
+                    $errors[$field] = $error;
+                    break;
+                }
+            }
+        }
+        return $errors;
+    }
+
+    // Changer aussi ces méthodes en statiques
+    private static function validatePattern(string $rule, $value): ?string 
+    {
+        if (!empty($value) && !preg_match(self::$validationRules[$rule]['pattern'], $value)) {
+            return self::$validationRules[$rule]['message'];
+        }
+        return null;
+    }
+
+    private static function validateMinAmount(float $amount, float $min): ?string 
+    {
+        if ($amount < $min) {
+            return sprintf(self::$validationRules['montant']['message'], $min);
+        }
+        return null;
+    }
+
+    private static function validateFile(array $file): ?string
+    {
+        if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+            return self::$validationRules['file']['messages']['upload_error'];
+        }
+        if (!in_array($file['type'], self::$validationRules['file']['allowed_types'])) {
+            return self::$validationRules['file']['messages']['type_invalid'];
+        }
+        if ($file['size'] > self::$validationRules['file']['max_size']) {
+            return self::$validationRules['file']['messages']['size_invalid'];
+        }
+        return null;
+    }
+
+    public static function validateRegistration(array $data): array
+    {
+        return self::validate($data, [
+            'numero' => ['required', 'telephone'],
+            'nom' => ['required'],
+            'prenom' => ['required'],
+            'adresse' => ['required'],
+            'numero_carte_identite' => ['required']
+        ]);
+    }
+
+    public static function validateLogin(array $data): array
+    {
+        return self::validate($data, [
+            'code' => ['required', 'code_secret']
+        ]);
+    }
+
+    public static function validateSecondaryAccount(array $data): array
+    {
+        return self::validate($data, [
+            'numero_telephone' => ['required', 'telephone'],
+            'code_secret' => ['required', 'code_secret'],
+            'montant_initial' => ['required', 'montant_min']
+        ]);
+    }
+
+    public static function validateUserSession($registerData): bool
+    {
+        return empty($registerData);
+    }
+
+    public static function validateCodeSecretRegistration(?string $codeSecret): array
+    {
+        $errors = [];
+        if (empty($codeSecret)) {
+            $errors['code_secret'] = 'Le code secret est obligatoire';
+        } elseif (!preg_match(self::$validationRules['code_secret']['pattern'], $codeSecret)) {
+            $errors['code_secret'] = self::$validationRules['code_secret']['message'];
+        }
+        return $errors;
+    }
+
+    public static function validateUserExists($user): bool
+    {
+        return !empty($user);
     }
 
     public static function validateLoginCode(?string $code): ?string 
@@ -134,17 +164,16 @@ class Validator
         return null;
     }
 
-    public static function validateTransactionFilters(array $data): array 
+    public static function validateTransactionFilters(array $data): array
     {
         $errors = [];
         
-        // Validation de la page
-        $page = $data['page'] ?? 1;
-        if (!filter_var($page, FILTER_VALIDATE_INT) || $page < 1) {
+        // Validate page
+        if (!filter_var($data['page'], FILTER_VALIDATE_INT) || $data['page'] < 1) {
             $errors['page'] = 'Numéro de page invalide';
         }
 
-        // Validation de la date
+        // Validate date if present
         if (!empty($data['date'])) {
             $date = \DateTime::createFromFormat('d/m/Y', $data['date']);
             if (!$date) {
@@ -154,30 +183,35 @@ class Validator
 
         return $errors;
     }
-
-    public static function validateUserSession($user): ?string 
+    
+    public static function validateCompteCreation(array $data): array
     {
-        if (!$user) {
-            return 'Session utilisateur invalide';
+        return self::validate($data, [
+            'numero_telephone' => ['required', 'telephone'],
+            'code_secret' => ['required', 'code_secret'],
+            'montant_initial' => ['montant_min']
+        ]);
+    }
+
+    public static function validateAccountNumber(?string $numero): ?string
+    {
+        if (empty($numero)) {
+            return 'Le numéro de compte est obligatoire';
+        }
+        if (!preg_match(self::$validationRules['account_number']['pattern'], $numero)) {
+            return self::$validationRules['account_number']['message'];
         }
         return null;
     }
 
-    public static function validateCodeSecretRegistration(string $code): array 
+    public static function validatePhoneNumber(?string $numero): ?string
     {
-        $errors = [];
-        
-        if (empty($code)) {
-            $errors['code_secret'] = 'Le code secret est requis';
-        } elseif (!preg_match(self::$validationRules['code_secret']['pattern'], $code)) {
-            $errors['code_secret'] = 'Le code doit contenir exactement 4 chiffres';
+        if (empty($numero)) {
+            return 'Le numéro de téléphone est obligatoire';
         }
-
-        return $errors;
-    }
-
-    public static function validateUserExists($user): bool
-    {
-        return !empty($user);
+        if (!preg_match(self::$validationRules['telephone']['pattern'], $numero)) {
+            return self::$validationRules['telephone']['message'];
+        }
+        return null;
     }
 }

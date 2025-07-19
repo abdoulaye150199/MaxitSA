@@ -20,12 +20,10 @@ class UserService implements UserServiceInterface
 
     public function __construct(
         UserRepositoryInterface $userRepository,
-        ValidationServiceInterface $validationService,
         FileUploadServiceInterface $fileUploadService,
         SmsServiceInterface $smsService
     ) {
         $this->userRepository = $userRepository;
-        $this->validationService = $validationService;
         $this->fileUploadService = $fileUploadService;
         $this->smsService = $smsService;
     }
