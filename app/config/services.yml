@@ -31,9 +31,6 @@ services:
     arguments: ['@database.getPdo'] 
 
 
-  validationService:
-    class: App\Service\ValidationService
-
   fileUploadService:
     class: App\Service\FileUploadService
 
@@ -44,6 +41,5 @@ services:
     class: App\Service\UserService
     arguments:
       - '@userRepository'
-      - '@validationService'
-      - '@fileUploadService'
+      - '@fileUploadService'  # Change this from '@validator'
       - '@smsService'
