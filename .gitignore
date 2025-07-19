@@ -10,8 +10,7 @@ STRUCTURATION.txt
 /vendor/
 /node_modules/
 
-# Dossiers d'uploads
-public/images/uploads/
+
 
 
 
