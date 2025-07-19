@@ -1,3 +1,22 @@
+# Fichiers de documentation et notes
+*.txt
+*.md
+
+# Fichiers d'environnement
 .env
 vendor/
 public/images/uploads/
+# Dossiers générés
+/vendor/
+/node_modules/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers d'IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
