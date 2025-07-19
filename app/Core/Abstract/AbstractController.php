@@ -8,7 +8,7 @@ use App\Core\Validator;
 abstract class AbstractController {
 
     protected string $layout = 'base.solde.html.layout.php';
-    protected Session $session; // Add type declaration here
+    protected Session $session; 
 
     abstract public function index();
     abstract public function create();
@@ -19,10 +19,12 @@ abstract class AbstractController {
 
     public function __construct() 
     {
-        $this->session = App::session();
+        // Fix: Assign the session to the protected property
+        $this->session = App::getDependency('session');
     }
 
-    protected function renderView(string $view, array $data = []) {
+    protected function renderHtml(string $view, array $data = []) 
+    {
         extract($data);
         ob_start();
         require __DIR__ . '/../../../templates/views/' . $view . '.html.php';
@@ -32,53 +34,14 @@ abstract class AbstractController {
 
     public function solde()
     {
-        $this->renderView('solde');
+        $this->renderHtml('solde');
     }
 
-    /**
-     * Valider les données avec le service de validation
-     */
-    protected function validate(array $data, array $rules): array
-    {
-        $validator = new Validator();  // Create new instance instead of static call
-        return $validator->validate($data, $rules);  // Call validate as instance method
-    }
-
-    /**
-     * Rediriger vers une URL
-     */
     protected function redirect(string $url): void
     {
         header("Location: $url");
         exit;
     }
 
-    /**
-     * Retourner une réponse JSON
-     */
-    protected function json(array $data, int $status = 200): void
-    {
-        http_response_code($status);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
-
-    protected function setFlash(string $type, string $message): void
-    {
-        $_SESSION['flash'] = [
-            'type' => $type,
-            'message' => $message
-        ];
-    }
-
-    protected function getFlash(): ?array
-    {
-        if (isset($_SESSION['flash'])) {
-            $flash = $_SESSION['flash'];
-            unset($_SESSION['flash']);
-            return $flash;
-        }
-        return null;
-    }
+   
 }

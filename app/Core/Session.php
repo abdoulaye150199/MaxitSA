@@ -4,7 +4,7 @@ namespace App\Core;
 
 class Session
 {
-    private static ?self $instance = null;
+    private static ?Session $instance = null;
 
     private function __construct()
     {
@@ -31,6 +31,18 @@ class Session
         return $_SESSION[$key] ?? $default;
     }
 
+    public function setFlash(string $key, string $message): void
+    {
+        $_SESSION['flash'][$key] = $message;
+    }
+
+    public function getFlash(string $key, $default = null)
+    {
+        $message = $_SESSION['flash'][$key] ?? $default;
+        unset($_SESSION['flash'][$key]);
+        return $message;
+    }
+
     public function has(string $key): bool
     {
         return isset($_SESSION[$key]);
@@ -43,7 +55,6 @@ class Session
 
     public function destroy(): void
     {
-        $_SESSION = [];
         session_destroy();
     }
 }

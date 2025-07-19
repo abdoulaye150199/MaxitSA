@@ -2,8 +2,6 @@
 
 namespace App\Core;
 
-use App\Core\App;
-
 class Middleware
 {
     private static array $middlewares = [];
@@ -45,16 +43,18 @@ class Middleware
 
     private static function auth(): bool
     {
-        $session = App::session();
-        if (!$session->has('user')) { // Changed from isset() to has()
+        $session = App::getDependency('session');
+        
+        if (!$session->has('user')) {
             header('Location: /');
             exit;
         }
         return true;
     }
+
     private static function isClient(): bool
     {
-        $session = App::session();
+        $session = App::getDependency('session');
         $user = $session->get('user');
         
         if (!$user || $user['type'] !== 'CLIENT') {
@@ -85,13 +85,6 @@ class Middleware
 
         self::register('hashCodeSecret', function() {
             return self::hashCodeSecret();
-        });
-
-        self::register('cors', function() {
-            header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-            header('Access-Control-Allow-Headers: Content-Type, Authorization');
-            return true;
         });
     }
 }

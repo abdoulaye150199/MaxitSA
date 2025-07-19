@@ -50,16 +50,48 @@
                         <?php foreach($latestTransactions as $transaction): ?>
                             <tr class="border-b border-gray-100 hover:bg-gray-50">
                                 <td class="py-3 px-4">
-                                    <?= htmlspecialchars($transaction['type_transaction'] ?? '') ?>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        <?php 
+                                        switch($transaction['type_transaction']) {
+                                            case 'DEPOT':
+                                                echo 'bg-green-100 text-green-800';
+                                                break;
+                                            case 'RETRAIT':
+                                                echo 'bg-red-100 text-red-800';
+                                                break;
+                                            case 'PAIEMENT':
+                                                echo 'bg-blue-100 text-blue-800';
+                                                break;
+                                            default:
+                                                echo 'bg-gray-100 text-gray-800';
+                                        }
+                                        ?>">
+                                        <?= htmlspecialchars($transaction['type_transaction']) ?>
+                                    </span>
                                 </td>
                                 <td class="py-3 px-4">
                                     <?= htmlspecialchars($transaction['numero_telephone'] ?? '') ?>
                                 </td>
-                                <td class="py-3 px-4 text-right <?= $transaction['montant'] > 0 ? 'text-green-600' : 'text-red-600' ?>">
-                                    <?= number_format(abs($transaction['montant']), 0, ',', ' ') ?> FCFA
+                                <td class="py-3 px-4 text-right font-medium 
+                                    <?php 
+                                    switch($transaction['type_transaction']) {
+                                        case 'DEPOT':
+                                            echo 'text-green-600';
+                                            break;
+                                        case 'RETRAIT':
+                                            echo 'text-red-600';
+                                            break;
+                                        case 'PAIEMENT':
+                                            echo 'text-blue-600';
+                                            break;
+                                        default:
+                                            echo 'text-gray-600';
+                                    }
+                                    ?>">
+                                    <?= number_format($transaction['montant'], 0, ',', ' ') ?> FCFA
                                 </td>
                                 <td class="py-3 px-4 text-center">
-                                    <?= isset($transaction['date_transaction']) ? date('d/m/Y H:i', strtotime($transaction['date_transaction'])) : '' ?>
+                                    <?= date('d/m/Y H:i', strtotime($transaction['date_transaction'])) ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -76,11 +108,7 @@
     </div>
 </div>
 
-<?php if ($flash = $this->getFlash()): ?>
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-        <?= htmlspecialchars($flash['message']) ?>
-    </div>
-<?php endif; ?>
+
 
 <style>
     /* Masquer la barre de défilement tout en gardant la fonctionnalité */

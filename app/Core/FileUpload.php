@@ -54,16 +54,6 @@ class FileUpload
         return ['success' => false, 'error' => 'Erreur lors de l\'upload'];
     }
 
-
-    public function delete(string $path): bool
-    {
-        $fullPath = $this->uploadPath . $path;
-        if (file_exists($fullPath)) {
-            return unlink($fullPath);
-        }
-        return false;
-    }
-
     public function validate(array $file): array
     {
         $errors = [];
