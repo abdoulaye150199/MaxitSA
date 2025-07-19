@@ -6,71 +6,75 @@ use App\Core\Abstract\AbstractController;
 use App\Repository\UserRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\CompteRepository;
-use App\Core\Database;
 use App\Core\App;
 use App\Core\Validator;
-
+          
 class ServiceCommercialController extends AbstractController
 {
     private UserRepository $userRepository;
     private TransactionRepository $transactionRepository;
     private CompteRepository $compteRepository;
 
-    public function __construct(UserRepository $userRepository, Database $database)
+    public function __construct()
     {
         parent::__construct();
-        $this->userRepository = $userRepository;
-        $this->transactionRepository = new TransactionRepository($database->getPdo());
-        $this->compteRepository = new CompteRepository($database);
+        $this->userRepository = App::getDependency('userRepository');
+        $this->transactionRepository = App::getDependency('transactionRepository');
+        $this->compteRepository = App::getDependency('compteRepository');
     }
 
     public function index()
     {
-        $this->layout = 'base.service.html.layout.php';
-        return $this->renderView('service-commercial/dashboard');
+        return $this->renderHtml('service-commercial/dashboard');
     }
 
     public function searchAccount()
     {
         $this->layout = 'base.service.html.layout.php';
-        
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $errors = Validator::validateSearchAccount($_POST);
-            
-            if (!empty($errors)) {
-                return $this->renderView('service-commercial/dashboard', [
-                    'error' => reset($errors)
+            if (empty($_POST['numero'])) {
+                return $this->renderHtml('service-commercial/dashboard', [
+                    'error' => 'Le numéro de compte est requis'
                 ]);
             }
 
-            $numero = $_POST['numero'];
-            $user = $this->userRepository->findByPhone($numero);
+            $numeroRecherche = $_POST['numero'];
             
-            if (!$user) {
-                return $this->renderView('service-commercial/dashboard', [
-                    'error' => 'Aucun compte trouvé pour ce numéro'
-                ]);
+            // Recherche par numéro de compte (P-0001 ou S-0001)
+            if (preg_match('/^[PS]-\d{4}$/', $numeroRecherche)) {
+                $compte = $this->compteRepository->findByNumeroCompte($numeroRecherche);
+            } 
+            // Recherche par numéro de téléphone
+            else {
+                $numero = str_replace(['+221', ' '], '', $numeroRecherche);
+                if (!preg_match('/^(7[056789])[0-9]{7}$/', $numero)) {
+                    return $this->renderHtml('service-commercial/dashboard', [
+                        'error' => 'Format de numéro invalide',
+                        'numero' => $_POST['numero']
+                    ]);
+                }
+                $compte = $this->compteRepository->findByNumero($numero);
             }
 
-            // Get the account details
-            $compte = $this->compteRepository->findByNumero($numero);
             if (!$compte) {
-                return $this->renderView('service-commercial/dashboard', [
-                    'error' => 'Aucun compte associé à ce numéro'
+                return $this->renderHtml('service-commercial/dashboard', [
+                    'error' => 'Aucun compte trouvé',
+                    'numero' => $_POST['numero']
                 ]);
             }
 
-            $transactions = $this->transactionRepository->findTransactionsByPhone($numero, 10);
-            
-            return $this->renderView('service-commercial/account-details', [
+            $user = $this->userRepository->findById($compte->getUser()->getId());
+            $transactions = $this->transactionRepository->findTransactionsByCompte($compte->getId(), 10);
+
+            return $this->renderHtml('service-commercial/account-details', [
                 'user' => $user,
-                'numero' => $numero,
-                'solde' => $compte->getSolde(),
+                'compte' => $compte,
                 'transactions' => $transactions
             ]);
         }
 
-        return $this->renderView('service-commercial/dashboard');
+        return $this->renderHtml('service-commercial/dashboard');
     }
 
     public function allTransactions()
@@ -88,7 +92,6 @@ class ServiceCommercialController extends AbstractController
             return $this->redirect('/service-commercial');
         }
 
-        // Récupérer toutes les transactions avec filtres
         $transactions = $this->transactionRepository->findTransactionsByPhoneWithFilters(
             $numero, 
             $dateFilter, 
@@ -105,7 +108,7 @@ class ServiceCommercialController extends AbstractController
 
         $totalPages = ceil($totalTransactions / $limit);
 
-        return $this->renderView('service-commercial/all-transactions', [
+        return $this->renderHtml('service-commercial/all-transactions', [
             'numero' => $numero,
             'transactions' => $transactions,
             'currentPage' => $page,

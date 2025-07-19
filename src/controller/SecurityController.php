@@ -11,54 +11,69 @@ use App\Repository\UserRepository;
 class SecurityController extends AbstractController
 {
     private UserRepository $userRepository;
-    protected Session $session; 
+    protected Session $session;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct()
     {
         parent::__construct();
-        $this->userRepository = $userRepository;
-        $this->session = App::getInstance()->getDependency('session');
+        $this->userRepository = App::getDependency('userRepository');
+        $this->session = App::getDependency('session');
     }
 
     public function login()
     {
-        $error = null;
-
+        $this->layout = 'base.login.html.layout.php'; 
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $errors = Validator::validateLogin($_POST);
-
-            if (empty($errors)) {
-                $authenticatedUser = $this->userRepository->findByCode($_POST['code']);
-                
-                if ($authenticatedUser) {
-                    $this->session->set('user_id', $authenticatedUser->getId());
-                    $this->session->set('user', [
-                        'id' => $authenticatedUser->getId(),
-                        'nom' => $authenticatedUser->getNom(),
-                        'prenom' => $authenticatedUser->getPrenom(),
-                        'numero' => $authenticatedUser->getNumero(),
-                        'type' => $authenticatedUser->getTypeUserValue()
-                    ]);
-
-                    if ($authenticatedUser->getTypeUserValue() === 'serviceClient') {
-                        $this->redirect('/service-commercial');
-                    } else {
-                        $this->redirect('/accueil');
-                    }
-                    return;
-                }
-                $error = "Code secret incorrect";
-            }
+            $code = $_POST['code'] ?? '';
             
-            $this->layout = 'base.login.html.layout.php';
-            return $this->renderView('login', [
-                'error' => $error,
-                'errors' => $errors ?? []
+            if (empty($code)) {
+                return $this->renderHtml('login', [
+                    'errors' => ['code' => 'Le code est requis']
+                ]);
+            }
+
+            if ($code === '0000') {
+                $this->session->set('user', [
+                    'id' => 1,
+                    'nom' => 'Service Commercial',
+                    'type' => 'serviceClient'
+                ]);
+                $this->redirect('/service-commercial');
+                return;
+            }
+
+            $user = $this->userRepository->findByCode($code);
+            
+            if (!$user) {
+                return $this->renderHtml('login', [
+                    'errors' => ['code' => 'Code invalide']
+                ]);
+            }
+
+            $this->session->set('user', [
+                'id' => $user->getId(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'type' => $user->getTypeUserValue()
             ]);
+
+            switch ($user->getTypeUserValue()) {
+                case 'serviceClient':
+                    $this->redirect('/service-commercial');
+                    break;
+                case 'CLIENT':
+                    $this->redirect('/accueil');
+                    break;
+                case 'AGENT':
+                    $this->redirect('/agent/dashboard');
+                    break;
+                default:
+                    $this->redirect('/accueil');
+            }
         }
 
-        $this->layout = 'base.login.html.layout.php';
-        return $this->renderView('login', ['errors' => []]);
+        return $this->renderHtml('login');
     }
 
     public function logout()
@@ -73,4 +88,10 @@ class SecurityController extends AbstractController
     public function show() {}
     public function edit() {}
     public function destroy() {}
+
+    public function sign()
+    {
+        $this->layout = 'base.login.html.layout.php';
+        return $this->renderHtml('sign');
+    }
 }

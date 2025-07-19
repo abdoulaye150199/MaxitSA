@@ -12,21 +12,13 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Rechercher par date
                     </label>
-                    <div class="relative">
-                        <input 
-                            type="text" 
-                            name="date" 
-                            placeholder="JJ/MM/AAAA"
-                            value="<?= htmlspecialchars($_GET['date'] ?? '') ?>"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 pl-10 focus:outline-none focus:ring-2 focus:ring-[#d4b896]"
-                            pattern="\d{2}/\d{2}/\d{4}"
-                        >
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    </div>
+                    <input 
+                        type="text" 
+                        name="date" 
+                        placeholder="JJ/MM/AAAA"
+                        value="<?= htmlspecialchars($_GET['date'] ?? '') ?>"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2.5"
+                    >
                 </div>
 
                 <!-- Filtre par type -->
@@ -36,7 +28,7 @@
                     </label>
                     <select 
                         name="type" 
-                        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#d4b896]" >
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3" >
                         <option value="">Tous les types</option>
                         <option value="DEPOT" <?= ($_GET['type'] ?? '') === 'DEPOT' ? 'selected' : '' ?>>Dépôt</option>
                         <option value="RETRAIT" <?= ($_GET['type'] ?? '') === 'RETRAIT' ? 'selected' : '' ?>>Retrait</option>
@@ -83,19 +75,19 @@
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         <?php 
-                                            switch($transaction['type_transaction']) {
-                                                case 'DEPOT':
-                                                    echo 'bg-green-100 text-green-800';
-                                                    break;
-                                                case 'RETRAIT':
-                                                    echo 'bg-red-100 text-red-800';
-                                                    break;
-                                                case 'PAIEMENT':
-                                                    echo 'bg-blue-100 text-blue-800';
-                                                    break;
-                                                default:
-                                                    echo 'bg-gray-100 text-gray-800';
-                                            }
+                                        switch($transaction['type_transaction']) {
+                                            case 'DEPOT':
+                                                echo 'bg-green-100 text-green-800';
+                                                break;
+                                            case 'RETRAIT':
+                                                echo 'bg-red-100 text-red-800';
+                                                break;
+                                            case 'PAIEMENT':
+                                                echo 'bg-blue-100 text-blue-800';
+                                                break;
+                                            default:
+                                                echo 'bg-gray-100 text-gray-800';
+                                        }
                                         ?>"
                                     >
                                         <?= htmlspecialchars($transaction['type_transaction'] ?? '') ?>
@@ -104,7 +96,22 @@
                                 <td class="px-6 py-4">
                                     <?= htmlspecialchars($transaction['numero_telephone'] ?? '') ?>
                                 </td>
-                                <td class="px-6 py-4 text-right <?= $transaction['montant'] > 0 ? 'text-green-600' : 'text-red-600' ?>">
+                                <td class="px-6 py-4 text-right font-medium
+                                    <?php 
+                                    switch($transaction['type_transaction']) {
+                                        case 'DEPOT':
+                                            echo 'text-green-600';
+                                            break;
+                                        case 'RETRAIT':
+                                            echo 'text-red-600';
+                                            break;
+                                        case 'PAIEMENT':
+                                            echo 'text-blue-600';
+                                            break;
+                                        default:
+                                            echo 'text-gray-600';
+                                    }
+                                    ?>">
                                     <?= number_format(abs($transaction['montant']), 0, ',', ' ') ?> FCFA
                                 </td>
                                 <td class="px-6 py-4 text-center">

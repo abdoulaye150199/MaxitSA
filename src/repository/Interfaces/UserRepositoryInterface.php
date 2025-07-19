@@ -12,5 +12,4 @@ interface UserRepositoryInterface
     public function findByPhone(string $phone): ?Utilisateur;
     public function create(Utilisateur $user): bool;
     public function update(Utilisateur $user): bool;
-    public function delete(int $id): bool;
 }

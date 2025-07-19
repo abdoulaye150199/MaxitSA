@@ -7,28 +7,14 @@ class PaymentController extends AbstractController
 {
     public function index()
     {
-        $this->layout = 'base.solde.html.layout.php';
-        return $this->renderView('paiement');
+     
+        return $this->renderHtml('paiement'); 
     }
 
-    public function create()
-    {
-    }
-
-    public function store()
-    {
-    }
-
-    public function show()
-    {
-    }
-
-    public function edit()
-    {
-
-    }
-
-    public function destroy()
-    {
-    }
+    // Required abstract methods
+    public function create() {}
+    public function store() {}
+    public function show() {}
+    public function edit() {}
+    public function destroy() {}
 }

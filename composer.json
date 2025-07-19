@@ -10,10 +10,10 @@
             "App\\Controller\\": "src/controller/",
             "App\\config\\": "app/config/",
             "App\\Core\\": "app/Core/",
-            "App\\Providers\\": "app/Providers/"
+            "App\\Database\\Seeders\\": "database/seeders/",
+            "App\\Database\\Migrations\\": "database/migrations/"
         }
-        },
-    
+    },
     "authors": [
         {
             "name": "Abdoulaye",
@@ -21,6 +21,11 @@
         }
     ],
     "require": {
-        "vlucas/phpdotenv": "^5.6"
+        "vlucas/phpdotenv": "^5.6",
+        "symfony/yaml": "^6.4"
+    },
+    "scripts": {
+        "database:migrate": "php migrations/migration.php",
+        "database:seed": "php seeders/seeder.php"
     }
 }

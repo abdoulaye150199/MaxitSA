@@ -46,16 +46,15 @@
                     name="code_secret"
                     placeholder="Créez un code secret à 4 chiffres"
                     class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#d4b896] focus:border-transparent"
-                    maxlength="4"
                     pattern="[0-9]{4}"
-                    required
+                    maxlength="4"
                 >
             </div>
 
-            <!-- Montant initial -->
+            <!-- Montant initial (Optionnel) -->
             <div class="space-y-2">
                 <label class="block text-sm font-medium text-gray-700">
-                    MONTANT INITIAL
+                    MONTANT INITIAL (Optionnel)
                 </label>
                 <div class="relative">
                     <input 
@@ -64,14 +63,12 @@
                         placeholder="Entrez le montant initial"
                         value="<?= htmlspecialchars($_POST['montant_initial'] ?? '') ?>"
                         class="w-full border rounded-lg px-4 py-3 pr-16 focus:outline-none focus:ring-2 focus:ring-[#d4b896] focus:border-transparent"
-                        min="500"
-                        required
+                        min="0"
                     >
                     <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
                         FCFA
                     </span>
                 </div>
-                <p class="text-sm text-gray-500">Minimum: 500 FCFA</p>
             </div>
 
             <!-- Bouton Créer -->

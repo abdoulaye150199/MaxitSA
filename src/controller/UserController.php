@@ -3,55 +3,51 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
-use App\Core\Database;
-use App\Service\Interfaces\UserServiceInterface;
-use App\Service\Interfaces\ValidationServiceInterface;
+use App\Service\UserService;
+use App\Service\ValidationService;
 use App\Repository\TransactionRepository;
-use App\Repository\CompteRepository; // Add this import
+use App\Repository\CompteRepository;
+use App\Core\App;
 use App\Core\Validator;
 
 class UserController extends AbstractController
 {
-    private UserServiceInterface $userService;
-    private ValidationServiceInterface $validationService;
+    private UserService $userService;
+    private ValidationService $validationService;
     private TransactionRepository $transactionRepository;
-    private CompteRepository $compteRepository; // Add this property
+    private CompteRepository $compteRepository;
 
-    public function __construct(
-        UserServiceInterface $userService,
-        ValidationServiceInterface $validationService,
-        Database $database
-    ) {
+    public function __construct()
+    {
         parent::__construct();
-        $this->userService = $userService;
-        $this->validationService = $validationService;
-        $this->transactionRepository = new TransactionRepository($database->getPdo());
-        $this->compteRepository = new CompteRepository($database); // Initialize CompteRepository
+        $this->userService = App::getDependency('userService');
+        $this->validationService = App::getDependency('validationService');
+        $this->transactionRepository = App::getDependency('transactionRepository');
+        $this->compteRepository = App::getDependency('compteRepository');
     }
 
     public function store()
     {
+      
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $this->userService->register($_POST);
             
             if ($result['success']) {
-                $this->redirect($result['redirect'] ?? '/code-secret'); // Add fallback redirect
+                $this->redirect($result['redirect'] ?? '/code-secret');
                 return;
             } else {
-                $this->layout = 'base.login.html.layout.php';
-                $this->renderView('sign', ['errors' => $result['errors']]);
+                $this->renderHtml('sign', ['errors' => $result['errors']]);
                 return;
             }
         }
-
-        $this->layout = 'base.login.html.layout.php';
-        $this->renderView('sign');
+        
+        return $this->renderHtml('sign');
     }
 
     public function codeSecret()
     {
-        $this->layout = 'base.login.html.layout.php';
-
+      
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $registerData = $this->session->get('register_data');
             
@@ -61,21 +57,19 @@ class UserController extends AbstractController
             }
 
             if (empty($_POST['code_secret'])) {
-                return $this->renderView('code_secret', [
+                return $this->renderHtml('code_secret', [
                     'errors' => ['code_secret' => 'Le code secret est requis']
                 ]);
             }
 
             if (!preg_match('/^[0-9]{4}$/', $_POST['code_secret'])) {
-                return $this->renderView('code_secret', [
+                return $this->renderHtml('code_secret', [
                     'errors' => ['code_secret' => 'Le code doit contenir exactement 4 chiffres']
                 ]);
             }
 
-            // Fusionner les données d'inscription avec le code secret
             $userData = array_merge($registerData, ['code' => $_POST['code_secret']]);
-            
-            // Créer l'utilisateur
+
             $result = $this->userService->createUser($userData);
 
             if ($result) {
@@ -84,20 +78,20 @@ class UserController extends AbstractController
                 return;
             }
             
-            return $this->renderView('code_secret', [
+            return $this->renderHtml('code_secret', [
                 'errors' => ['general' => 'Erreur lors de la création du compte']
             ]);
         }
 
-        $this->renderView('code_secret');
+        $this->renderHtml('code_secret');
     }
 
     public function index()
     {
+        $this->layout = 'base.solde.html.layout.php';
         $latestTransactions = $this->transactionRepository->findLatestTransactions(10);
         
-        $this->layout = 'base.solde.html.layout.php';
-        return $this->renderView('accueil', [
+        return $this->renderHtml('accueil', [
             'latestTransactions' => $latestTransactions
         ]);
     }
@@ -109,31 +103,88 @@ class UserController extends AbstractController
 
     public function nouveauCompte()
     {
+        // Vérifier si l'utilisateur est connecté
+        $user = $this->session->get('user');
+        if (!$user) {
+            return $this->redirect('/login');
+        }
+
+        // Définir le layout correct
         $this->layout = 'base.solde.html.layout.php';
-        return $this->renderView('compte');
+        
+        // Rendre la vue compte.html.php
+        return $this->renderHtml('compte');
     }
 
     public function createCompte()
     {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return $this->redirect('/compte/nouveau');
+        }
+
+        $user = $this->session->get('user');
+        if (!Validator::validateUserExists($user)) {
+            return $this->redirect('/login');
+        }
+
+        try {
+            // Nettoyer le numéro de téléphone
+            $numeroTelephone = str_replace(['+221', ' '], '', $_POST['numero_telephone'] ?? '');
+            
+            $data = [
+                'numero_telephone' => $numeroTelephone,
+                'code_secret' => $_POST['code_secret'] ?? '',
+                'montant_initial' => !empty($_POST['montant_initial']) ? (float)$_POST['montant_initial'] : 0,
+                'id_client' => $user['id']
+            ];
+
+            // Validation
+            if (empty($data['code_secret']) || !preg_match('/^[0-9]{4}$/', $data['code_secret'])) {
+                return $this->renderHtml('compte', [
+                    'errors' => ['code_secret' => 'Le code secret doit contenir exactement 4 chiffres']
+                ]);
+            }
+
+            // Vérifier si l'utilisateur a déjà un compte avec ce numéro
+            if ($this->compteRepository->findByNumero($numeroTelephone)) {
+                return $this->renderHtml('compte', [
+                    'errors' => ['numero_telephone' => 'Ce numéro est déjà utilisé pour un compte']
+                ]);
+            }
+
+            if ($this->compteRepository->createSecondaryCompte($data)) {
+                return $this->redirect('/accueil');
+            }
+
+            return $this->renderHtml('compte', [
+                'errors' => ['general' => 'Erreur lors de la création du compte']
+            ]);
+
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            return $this->renderHtml('compte', [
+                'errors' => ['general' => 'Erreur lors de la création du compte']
+            ]);
+        }
+    }
+
+    public function createSecondaryAccount()
+    {
         $data = [
-            'numero_telephone' => $_POST['numero_telephone'] ?? '',
-            'code_secret' => $_POST['code_secret'] ?? '',
-            'montant_initial' => (float)($_POST['montant_initial'] ?? 0)
+            'numero_telephone' => $_POST['numero_telephone'],
+            'code_secret' => $_POST['code_secret'],
+            'montant_initial' => (float)($_POST['montant_initial'])
         ];
 
+        // Validation
         $errors = Validator::validateSecondaryAccount($data);
-
         if (!empty($errors)) {
-            return $this->renderView('compte', ['errors' => $errors]);
+            return $this->renderHtml('compte', ['errors' => $errors]);
         }
 
         // Récupérer l'ID du client connecté
         $user = $this->session->get('user');
-        if (!$user || !isset($user['id'])) {
-            $this->redirect('/login');
-            return;
-        }
-
+        
         // Créer le compte secondaire
         $compteData = [
             'numero_telephone' => $data['numero_telephone'],
@@ -143,13 +194,7 @@ class UserController extends AbstractController
         ];
 
         if ($this->compteRepository->createSecondaryCompte($compteData)) {
-            $this->setFlash('success', 'Compte secondaire créé avec succès');
             $this->redirect('/accueil');
-            return;
         }
-
-        return $this->renderView('compte', [
-            'errors' => ['general' => 'Erreur lors de la création du compte']
-        ]);
     }
 }

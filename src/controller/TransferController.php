@@ -8,8 +8,7 @@ class TransferController extends AbstractController
 {
     public function index()
     {
-        $this->layout = 'base.solde.html.layout.php';
-        return $this->renderView('transfert');
+        return $this->renderHtml('transfert');
     }
 
     // Méthodes requises par AbstractController

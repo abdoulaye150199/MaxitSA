@@ -12,6 +12,7 @@ class Compte
     private \DateTime $dateCreation;
     
     private array $transactions = [];
+    private string $numeroCompte;
 
     public function getId(): int { return $this->id; }
     public function setId(int $id): void { $this->id = $id; }
@@ -27,4 +28,13 @@ class Compte
     public function setDateCreation(\DateTime $date): void { $this->dateCreation = $date; }
     public function getTransactions(): array { return $this->transactions; }
     public function setTransactions(array $transactions): void { $this->transactions = $transactions; }
+    public function getNumeroCompte(): string 
+    { 
+        return $this->numeroCompte; 
+    }
+    
+    public function setNumeroCompte(string $numeroCompte): void 
+    { 
+        $this->numeroCompte = $numeroCompte; 
+    }
 }

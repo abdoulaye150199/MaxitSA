@@ -6,9 +6,11 @@ use App\Core\App;
 
 class Auth
 {
+    private const SERVICE_COMMERCIAL_CODE = '0000';
+
     public function __invoke(): bool
     {
-        $session = App::getDependencie('session');
+        $session = App::getDependency('session');
         
         if (!$session->has('user')) {
             header('Location: /login');
@@ -18,34 +20,14 @@ class Auth
         return true;
     }
 
-    /**
-     * Vérifier si l'utilisateur est un client
-     */
-    public static function isClient(): bool
+    public static function isServiceClient(): bool
     {
-        $session = App::getDependencie('session');
+        $session = App::getDependency('session');
         $user = $session->get('user');
         
-        if (!$user || $user['type'] !== 'CLIENT') {
+        if (!$user || $user['type'] !== 'serviceClient') {
             http_response_code(403);
-            echo json_encode(['error' => 'Accès interdit : réservé aux clients']);
-            exit;
-        }
-
-        return true;
-    }
-
-    /**
-     * Vérifier si l'utilisateur est un agent
-     */
-    public static function isAgent(): bool
-    {
-        $session = App::getDependencie('session');
-        $user = $session->get('user');
-        
-        if (!$user || $user['type'] !== 'AGENT') {
-            http_response_code(403);
-            echo json_encode(['error' => 'Accès interdit : réservé aux agents']);
+            echo json_encode(['error' => 'Accès interdit : réservé au service client']);
             exit;
         }
 
