@@ -27,9 +27,10 @@ class SecurityController extends AbstractController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $code = $_POST['code'] ?? '';
             
-            if (empty($code)) {
+            $error = Validator::validateLoginCode($code);
+            if ($error) {
                 return $this->renderHtml('login', [
-                    'errors' => ['code' => 'Le code est requis']
+                    'errors' => ['code' => $error]
                 ]);
             }
 
