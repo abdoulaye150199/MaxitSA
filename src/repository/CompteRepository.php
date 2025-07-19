@@ -21,20 +21,14 @@ class CompteRepository implements CompteRepositoryInterface
         try {
             $this->pdo->beginTransaction();
 
-            // Vérifier que l'utilisateur n'a pas déjà un compte avec ce numéro
-            $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM compte WHERE numero_telephone = :numero');
-            $stmt->execute([':numero' => $data['numero_telephone']]);
-            if ($stmt->fetchColumn() > 0) {
-                $this->pdo->rollBack();
-                return false;
-            }
+            // Nettoyer le numéro de téléphone
+            $numeroTelephone = str_replace(['+221', ' '], '', $data['numero_telephone']);
 
             // Générer le numéro de compte secondaire
             $lastNumber = $this->getLastAccountNumber('S');
             $numeroCompte = sprintf("S-%04d", $lastNumber + 1);
 
             $query = "INSERT INTO compte (
-                id,
                 numero_compte,
                 numero_telephone, 
                 code_secret, 
@@ -42,10 +36,8 @@ class CompteRepository implements CompteRepositoryInterface
                 est_principal,
                 id_client,
                 id_type_compte,
-                date_creation,
                 type_compte
             ) VALUES (
-                DEFAULT,
                 :numero_compte,
                 :numero_telephone,
                 :code_secret,
@@ -53,14 +45,13 @@ class CompteRepository implements CompteRepositoryInterface
                 false,
                 :id_client,
                 2,
-                CURRENT_TIMESTAMP,
                 'Secondaire'
             )";
 
             $stmt = $this->pdo->prepare($query);
             $result = $stmt->execute([
                 ':numero_compte' => $numeroCompte,
-                ':numero_telephone' => $data['numero_telephone'],
+                ':numero_telephone' => $numeroTelephone,
                 ':code_secret' => password_hash($data['code_secret'], PASSWORD_DEFAULT),
                 ':solde' => $data['montant_initial'] ?? 0,
                 ':id_client' => $data['id_client']
@@ -68,12 +59,10 @@ class CompteRepository implements CompteRepositoryInterface
 
             if ($result) {
                 $this->pdo->commit();
-                error_log('Compte secondaire créé avec succès: ' . $numeroCompte);
                 return true;
             }
 
             $this->pdo->rollBack();
-            error_log('Échec de création du compte secondaire');
             return false;
 
         } catch (\PDOException $e) {
@@ -179,6 +168,24 @@ class CompteRepository implements CompteRepositoryInterface
         } catch (\PDOException $e) {
             error_log('Erreur recherche compte par user ID: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    public function findAllByUserId(int $userId): array
+    {
+        try {
+            $stmt = $this->pdo->prepare('
+                SELECT * FROM compte 
+                WHERE id_client = :user_id
+                ORDER BY est_principal DESC, date_creation DESC
+            ');
+            
+            $stmt->execute([':user_id' => $userId]);
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+        } catch (\PDOException $e) {
+            error_log('Erreur findAllByUserId: ' . $e->getMessage());
+            return [];
         }
     }
 }

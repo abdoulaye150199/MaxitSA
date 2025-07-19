@@ -24,6 +24,7 @@ services:
   compteRepository:
     class: App\Repository\CompteRepository
     arguments: ['@database']
+    shared: true
 
   transactionRepository:
     class: App\Repository\TransactionRepository
