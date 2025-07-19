@@ -1,11 +1,18 @@
 # Fichiers de documentation et notes
-*.txt
-*.md
+ARCHITECTURE.md
+README.txt
+STRUCTURATION.txt
 
 # Fichiers d'environnement
 .env
 
+# Dossiers générés
+/vendor/
+/node_modules/
+
+# Dossiers d'uploads
 public/images/uploads/
+
 
 
 
