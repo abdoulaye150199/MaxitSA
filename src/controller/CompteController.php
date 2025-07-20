@@ -88,20 +88,22 @@ class CompteController extends AbstractController
 
             // Nettoyer le numéro de téléphone
             $numeroTelephone = str_replace(['+221', ' '], '', $_POST['numero_telephone'] ?? '');
-
-            // Validation basique
-            if (empty($numeroTelephone)) {
-                return $this->renderHtml('compte', [
-                    'errors' => ['numero_telephone' => 'Le numéro est requis']
-                ]);
-            }
-
+            
+            // Préparer les données avec montant initial optionnel
             $data = [
                 'numero_telephone' => $numeroTelephone,
                 'montant_initial' => !empty($_POST['montant_initial']) ? (float)$_POST['montant_initial'] : 0,
                 'id_client' => $user['id']
             ];
 
+            // Validation du numéro de téléphone uniquement
+            if (empty($data['numero_telephone']) || strlen($data['numero_telephone']) !== 9) {
+                return $this->renderHtml('compte', [
+                    'errors' => ['numero_telephone' => 'Numéro de téléphone invalide']
+                ]);
+            }
+
+            // Créer le compte
             if ($this->compteRepository->createSecondaryCompte($data)) {
                 $this->session->set('flash_success', 'Compte secondaire créé avec succès');
                 return $this->redirect('/accueil');
