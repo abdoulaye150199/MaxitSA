@@ -6,11 +6,13 @@
         </div>
     </div>
     <div class="flex items-center space-x-6 relative">
-        <span class="text-[#c4a676] font-bold text-xl">77 291 77 70</span>
+        <span class="text-[#c4a676] font-bold text-xl">Gerer comptes</span>
+        
         <div class="relative">
             <img src="/images/uploads/icones/Frame 14.svg" alt="Dropdown" class="w-6 h-6 cursor-pointer" onclick="toggleDropdown()" />
             <!-- Dropdown Menu -->
             <div id="accountDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
+                
                 <div class="py-2 px-4">
                     <p class="text-gray-700 font-medium mb-2">Gérer mes comptes</p>
                     <a 
