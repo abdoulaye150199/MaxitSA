@@ -47,18 +47,12 @@ function createPostgreSQLTables(PDO $pdo): void {
         libelle VARCHAR(50) NOT NULL UNIQUE
     )");
 
-    // Table type_compte
-    $pdo->exec("CREATE TABLE IF NOT EXISTS type_compte (
-        id_type SERIAL PRIMARY KEY,
-        libelle VARCHAR(50) NOT NULL UNIQUE
-    )");
-
-    // Table users
+    // Table users 
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         code VARCHAR(255) NOT NULL,
         nom VARCHAR(100) NOT NULL,
-        prenom VARCHAR(100) NOT NULL,
+        prenom VARCHAR(100) NOT NULL, 
         numero VARCHAR(20) NOT NULL UNIQUE,
         adresse TEXT NOT NULL,
         type_user VARCHAR(50) NOT NULL DEFAULT 'client',
@@ -71,17 +65,13 @@ function createPostgreSQLTables(PDO $pdo): void {
     // Table compte
     $pdo->exec("CREATE TABLE IF NOT EXISTS compte (
         id SERIAL PRIMARY KEY,
-        numero_compte VARCHAR(10) NOT NULL UNIQUE,
+        numero VARCHAR(10) NOT NULL UNIQUE,
         numero_telephone VARCHAR(20) NOT NULL,
-        code_secret VARCHAR(255) NOT NULL,
-        solde DECIMAL(15,2) DEFAULT 0.00,
+        solde DECIMAL(15,2) DEFAULT 0,
+        id_client INTEGER NOT NULL REFERENCES users(id),
+        type_compte VARCHAR(50) NOT NULL,
         est_principal BOOLEAN DEFAULT false,
-        id_client INTEGER NOT NULL,
-        id_type_compte INTEGER NOT NULL,
-        date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        type_compte VARCHAR(50) CHECK (type_compte IN ('Principale', 'Secondaire')),
-        FOREIGN KEY (id_client) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (id_type_compte) REFERENCES type_compte(id_type)
+        date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
 
     // Table transaction
@@ -89,10 +79,12 @@ function createPostgreSQLTables(PDO $pdo): void {
         id SERIAL PRIMARY KEY,
         montant DECIMAL(15,2) NOT NULL,
         date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        compte_id INTEGER NOT NULL,
-        type_transaction INTEGER NOT NULL,
-        FOREIGN KEY (compte_id) REFERENCES compte(id) ON DELETE CASCADE,
-        FOREIGN KEY (type_transaction) REFERENCES type_transaction(id_type)
+        compte_id INTEGER NOT NULL REFERENCES compte(id),
+        type_transaction VARCHAR(50) NOT NULL,
+        description TEXT,
+        compte_destinataire VARCHAR(10),
+        statut VARCHAR(20) DEFAULT 'En attente',
+        reference VARCHAR(50) NOT NULL UNIQUE
     )");
 }
 
