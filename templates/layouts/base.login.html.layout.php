@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -21,12 +22,7 @@
 </head>
 <body class="min-h-screen flex items-center justify-center bg-[#f8f6f3]">
     <div class="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
-        
-        <div class="max-w-xl mx-auto">
-            <?php if (isset($ContentForLayout)) echo $ContentForLayout; ?>
-        </div>
+        <?php if (isset($ContentForLayout)) echo $ContentForLayout; ?>
     </div>
-
-    <?php if (isset($scripts)) echo $scripts; ?>
 </body>
 </html>

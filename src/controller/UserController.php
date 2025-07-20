@@ -25,7 +25,7 @@ class UserController extends AbstractController
 
     public function store()
     {
-      
+        $this->layout = 'base.login.html.layout.php'; // Définir explicitement le layout
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $this->userService->register($_POST);
@@ -34,8 +34,7 @@ class UserController extends AbstractController
                 $this->redirect($result['redirect'] ?? '/code-secret');
                 return;
             } else {
-                $this->renderHtml('sign', ['errors' => $result['errors']]);
-                return;
+                return $this->renderHtml('sign', ['errors' => $result['errors']]);
             }
         }
         

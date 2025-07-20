@@ -7,16 +7,19 @@ use App\Core\App;
 use App\Core\Session;
 use App\Core\Validator;
 use App\Repository\UserRepository;
+use App\Service\UserService;
 
 class SecurityController extends AbstractController
 {
     private UserRepository $userRepository;
+    private UserService $userService; // Add this property
     protected Session $session;
 
     public function __construct()
     {
         parent::__construct();
         $this->userRepository = App::getDependency('userRepository');
+        $this->userService = App::getDependency('userService'); // Add this line
         $this->session = App::getDependency('session');
     }
 
@@ -85,7 +88,22 @@ class SecurityController extends AbstractController
 
     public function index() {}
     public function create() {}
-    public function store() {}
+    
+    public function store()
+    {
+        $this->layout = 'base.login.html.layout.php';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $result = $this->userService->register($_POST);
+            
+            if ($result['success']) {
+                return $this->redirect($result['redirect'] ?? '/code-secret');
+            }
+            
+            return $this->renderHtml('sign', ['errors' => $result['errors']]);
+        }
+        return $this->renderHtml('sign');
+    }
+    
     public function show() {}
     public function edit() {}
     public function destroy() {}
