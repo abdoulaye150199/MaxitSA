@@ -22,7 +22,11 @@
                 <span class="bg-[#d4b896] text-white px-3 py-1 rounded-lg">Principal</span>
             </div>
             <div class="flex items-center justify-between">
-                <span class="text-2xl font-bold">1500FCFA</span>
+                <span class="text-2xl font-bold">
+                     <?php 
+                        $solde = isset($compte) && $compte ? number_format($compte->getSolde(), 0, ',', ' ') : '0';
+                        echo $solde;
+                    ?> FCFA</span>
             </div>
             <a href="#" class="text-[#d4b896] mt-4 block">Voir l'historique &rarr;</a>
         </div>
