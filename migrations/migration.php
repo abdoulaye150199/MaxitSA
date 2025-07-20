@@ -106,13 +106,6 @@ function createMySQLTables(PDO $pdo): void {
         INDEX idx_libelle (libelle)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-    // Table type_compte
-    $pdo->exec("CREATE TABLE IF NOT EXISTS type_compte (
-        id_type INT AUTO_INCREMENT PRIMARY KEY,
-        libelle VARCHAR(50) NOT NULL UNIQUE,
-        INDEX idx_libelle (libelle)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-
     // Table users
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -122,9 +115,9 @@ function createMySQLTables(PDO $pdo): void {
         numero VARCHAR(20) NOT NULL UNIQUE,
         adresse LONGTEXT NOT NULL,
         type_user VARCHAR(50) NOT NULL DEFAULT 'client',
-        photo_identite_recto VARCHAR(255),
-        photo_identite_verso VARCHAR(255),
-        numero_carte_identite VARCHAR(50),
+        photo_identite_recto VARCHAR(255) NULL,
+        photo_identite_verso VARCHAR(255) NULL,
+        numero_carte_identite VARCHAR(50) NULL,
         date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_numero (numero),
         INDEX idx_type_user (type_user)
@@ -133,20 +126,16 @@ function createMySQLTables(PDO $pdo): void {
     // Table compte
     $pdo->exec("CREATE TABLE IF NOT EXISTS compte (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        numero_compte VARCHAR(10) NOT NULL UNIQUE,
+        numero VARCHAR(10) NOT NULL UNIQUE,
         numero_telephone VARCHAR(20) NOT NULL,
-        code_secret VARCHAR(255) NOT NULL,
         solde DECIMAL(15,2) DEFAULT 0.00,
+        user_id INT NOT NULL,
+        type_compte VARCHAR(50) NOT NULL,
         est_principal BOOLEAN DEFAULT false,
-        id_client INT NOT NULL,
-        id_type_compte INT NOT NULL,
         date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        type_compte VARCHAR(50),
-        INDEX idx_numero_compte (numero_compte),
+        INDEX idx_numero (numero),
         INDEX idx_numero_telephone (numero_telephone),
-        FOREIGN KEY (id_client) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (id_type_compte) REFERENCES type_compte(id_type),
-        CHECK (type_compte IN ('Principale', 'Secondaire'))
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
     // Table transaction
@@ -155,11 +144,15 @@ function createMySQLTables(PDO $pdo): void {
         montant DECIMAL(15,2) NOT NULL,
         date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         compte_id INT NOT NULL,
-        type_transaction INT NOT NULL,
+        type_transaction VARCHAR(50) NOT NULL,
+        description TEXT NULL,
+        compte_destinataire VARCHAR(10) NULL,
+        statut ENUM('En attente', 'Réussie', 'Échouée') DEFAULT 'En attente',
+        reference VARCHAR(50) UNIQUE NOT NULL,
         INDEX idx_compte (compte_id),
         INDEX idx_type (type_transaction),
-        FOREIGN KEY (compte_id) REFERENCES compte(id) ON DELETE CASCADE,
-        FOREIGN KEY (type_transaction) REFERENCES type_transaction(id_type)
+        INDEX idx_date (date),
+        FOREIGN KEY (compte_id) REFERENCES compte(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 }
 
