@@ -187,4 +187,22 @@ class UserController extends AbstractController
             $this->redirect('/accueil');
         }
     }
+
+    public function solde()
+    {
+        // Vérifier si l'utilisateur est connecté
+        $user = $this->session->get('user');
+        if (!$user) {
+            return $this->redirect('/login');
+        }
+
+        $this->layout = 'base.solde.html.layout.php';
+        
+        // Récupérer le compte principal de l'utilisateur
+        $compte = $this->compteRepository->findByUserId($user['id']);
+        
+        return $this->renderHtml('solde', [
+            'compte' => $compte
+        ]);
+    }
 }

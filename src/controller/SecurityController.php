@@ -95,4 +95,16 @@ class SecurityController extends AbstractController
         $this->layout = 'base.login.html.layout.php';
         return $this->renderHtml('sign');
     }
+
+    public function signup()
+    {
+        $this->layout = 'base.login.html.layout.php';
+        return $this->renderHtml('sign');
+    }
+
+    public function codeSecret()
+    {
+        $this->layout = 'base.login.html.layout.php';
+        return $this->renderHtml('code_secret');
+    }
 }
