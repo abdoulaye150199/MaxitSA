@@ -21,7 +21,10 @@
                     >
                         Nouveau Compte
                     </a>
-                    <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                    <a 
+                        href="/switch-compte" 
+                        class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                    >
                         Changer de Compte
                     </a>
                 </div>

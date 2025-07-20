@@ -120,4 +120,37 @@ class CompteController extends AbstractController
             ]);
         }
     }
+
+    public function switchCompteList()
+    {
+        $user = $this->session->get('user');
+        if (!$user) {
+            return $this->redirect('/login');
+        }
+
+        // Récupérer tous les comptes de l'utilisateur
+        $comptes = $this->compteRepository->findAllByUserId($user['id']);
+
+        $this->layout = 'base.solde.html.layout.php';
+        return $this->renderHtml('switch-compte', ['comptes' => $comptes]);
+    }
+
+    public function switchCompte($compteId)
+    {
+        $user = $this->session->get('user');
+        if (!$user) {
+            return $this->redirect('/login');
+        }
+
+        // Vérifier que le compte appartient bien à l'utilisateur
+        $compte = $this->compteRepository->findById($compteId);
+        if (!$compte || $compte->getUser()->getId() !== $user['id']) {
+            return $this->redirect('/accueil');
+        }
+
+        // Sauvegarder l'ID du compte actif dans la session
+        $this->session->set('compte_actif', $compteId);
+
+        return $this->redirect('/accueil');
+    }
 }
