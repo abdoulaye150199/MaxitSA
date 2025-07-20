@@ -20,7 +20,6 @@ class CompteRepository implements CompteRepositoryInterface
     {
         try {
             $this->pdo->beginTransaction();
-            error_log("Début création compte secondaire");
 
             // Nettoyer le numéro de téléphone
             $numeroTelephone = str_replace(['+221', ' '], '', $data['numero_telephone']);
@@ -40,23 +39,21 @@ class CompteRepository implements CompteRepositoryInterface
 
             $query = "INSERT INTO compte (
                 numero,
-                type_compte,
+                numero_telephone,
                 solde,
                 user_id,
-                numero_telephone,
+                type_compte,
                 date_creation
             ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
             $params = [
                 $numeroCompte,
-                'Secondaire',
+                $numeroTelephone,
                 $data['montant_initial'] ?? 0,
                 $data['id_client'],
-                $numeroTelephone
+                'Secondaire'
             ];
 
-            error_log("Paramètres d'insertion : " . print_r($params, true));
-            
             $stmt = $this->pdo->prepare($query);
             $result = $stmt->execute($params);
 
@@ -72,7 +69,6 @@ class CompteRepository implements CompteRepositoryInterface
 
         } catch (\PDOException $e) {
             error_log("ERREUR SQL: " . $e->getMessage());
-            error_log("TRACE: " . $e->getTraceAsString());
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
