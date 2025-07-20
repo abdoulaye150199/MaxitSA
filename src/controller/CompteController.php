@@ -4,21 +4,69 @@ namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
 use App\Core\App;
-use App\Core\Validator;
 use App\Repository\CompteRepository;
 
 class CompteController extends AbstractController
 {
     private CompteRepository $compteRepository;
-    private Validator $validator;
 
     public function __construct()
     {
         parent::__construct();
         $this->compteRepository = App::getDependency('compteRepository');
-        $this->validator = App::getDependency('validator');
     }
 
+    // Méthode pour afficher la liste des comptes
+    public function index()
+    {
+        $user = $this->session->get('user');
+        if (!$user) {
+            return $this->redirect('/login');
+        }
+
+        $comptes = $this->compteRepository->findAllByUserId($user['id']);
+        return $this->renderHtml('comptes/index', ['comptes' => $comptes]);
+    }
+
+    // Afficher le formulaire de création
+    public function create()
+    {
+        $user = $this->session->get('user');
+        if (!$user) {
+            return $this->redirect('/login');
+        }
+        return $this->renderHtml('compte');
+    }
+
+    // Traiter la création
+    public function store()
+    {
+        // Cette méthode n'est pas utilisée car nous utilisons createCompte
+        return $this->redirect('/compte/nouveau');
+    }
+
+    // Afficher un compte spécifique
+    public function show()
+    {
+        // Cette méthode n'est pas utilisée pour le moment
+        return $this->redirect('/accueil');
+    }
+
+    // Afficher le formulaire de modification
+    public function edit()
+    {
+        // Cette méthode n'est pas utilisée pour le moment
+        return $this->redirect('/accueil');
+    }
+
+    // Supprimer un compte
+    public function destroy()
+    {
+        // Cette méthode n'est pas utilisée pour le moment
+        return $this->redirect('/accueil');
+    }
+
+    // Méthodes spécifiques existantes
     public function nouveauCompte()
     {
         $user = $this->session->get('user');
@@ -38,40 +86,22 @@ class CompteController extends AbstractController
                 return $this->redirect('/login');
             }
 
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                return $this->redirect('/compte/nouveau');
+            // Nettoyer le numéro de téléphone
+            $numeroTelephone = str_replace(['+221', ' '], '', $_POST['numero_telephone'] ?? '');
+
+            // Validation basique
+            if (empty($numeroTelephone)) {
+                return $this->renderHtml('compte', [
+                    'errors' => ['numero_telephone' => 'Le numéro est requis']
+                ]);
             }
 
-            // Nettoyer les données
-            $numeroTelephone = str_replace(['+221', ' '], '', $_POST['numero_telephone'] ?? '');
             $data = [
                 'numero_telephone' => $numeroTelephone,
-                'code_secret' => $_POST['code_secret'] ?? '',
                 'montant_initial' => !empty($_POST['montant_initial']) ? (float)$_POST['montant_initial'] : 0,
                 'id_client' => $user['id']
             ];
 
-            // Validation centralisée
-            $errors = Validator::validateCompteCreation($data);
-            if (!empty($errors)) {
-                return $this->renderHtml('compte', ['errors' => $errors]);
-            }
-
-            // Vérifier si le numéro existe déjà
-            if ($this->compteRepository->findByNumero($numeroTelephone)) {
-                return $this->renderHtml('compte', [
-                    'errors' => ['numero_telephone' => 'Ce numéro est déjà utilisé pour un compte']
-                ]);
-            }
-
-            // S'assurer que le montant initial est au moins 500 FCFA
-            if ($data['montant_initial'] < 500) {
-                return $this->renderHtml('compte', [
-                    'errors' => ['montant_initial' => 'Le montant initial doit être d\'au moins 500 FCFA']
-                ]);
-            }
-
-            // Créer le compte
             if ($this->compteRepository->createSecondaryCompte($data)) {
                 $this->session->set('flash_success', 'Compte secondaire créé avec succès');
                 return $this->redirect('/accueil');
@@ -88,27 +118,4 @@ class CompteController extends AbstractController
             ]);
         }
     }
-
-    public function index()
-    {
-        $user = $this->session->get('user');
-        if (!$user) {
-            return $this->redirect('/login');
-        }
-
-        $comptes = $this->compteRepository->findAllByUserId($user['id']);
-        
-        $this->layout = 'base.solde.html.layout.php';
-        return $this->renderHtml('comptes/index', [
-            'comptes' => $comptes,
-            'success' => $this->session->get('flash_success'),
-            'error' => $this->session->get('flash_error')
-        ]);
-    }
-
-    public function create() {}
-    public function store() {}
-    public function show() {}
-    public function edit() {}
-    public function destroy() {}
 }

@@ -20,64 +20,72 @@ class CompteRepository implements CompteRepositoryInterface
     {
         try {
             $this->pdo->beginTransaction();
+            error_log("Début création compte secondaire");
 
             // Nettoyer le numéro de téléphone
             $numeroTelephone = str_replace(['+221', ' '], '', $data['numero_telephone']);
 
-            // Générer le numéro de compte secondaire
+            // Vérifier si le numéro existe déjà
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM compte WHERE numero_telephone = ?");
+            $stmt->execute([$numeroTelephone]);
+            if ($stmt->fetchColumn() > 0) {
+                $this->pdo->rollBack();
+                error_log("Numéro déjà utilisé");
+                return false;
+            }
+
+            // Générer le numéro de compte
             $lastNumber = $this->getLastAccountNumber('S');
             $numeroCompte = sprintf("S-%04d", $lastNumber + 1);
 
             $query = "INSERT INTO compte (
-                numero_compte,
-                numero_telephone, 
-                code_secret, 
-                solde, 
-                est_principal,
-                id_client,
-                id_type_compte,
-                type_compte
-            ) VALUES (
-                :numero_compte,
-                :numero_telephone,
-                :code_secret,
-                :solde,
-                false,
-                :id_client,
-                2,
-                'Secondaire'
-            )";
+                numero,
+                type_compte,
+                solde,
+                user_id,
+                numero_telephone,
+                date_creation
+            ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
+            $params = [
+                $numeroCompte,
+                'Secondaire',
+                $data['montant_initial'] ?? 0,
+                $data['id_client'],
+                $numeroTelephone
+            ];
+
+            error_log("Paramètres d'insertion : " . print_r($params, true));
+            
             $stmt = $this->pdo->prepare($query);
-            $result = $stmt->execute([
-                ':numero_compte' => $numeroCompte,
-                ':numero_telephone' => $numeroTelephone,
-                ':code_secret' => password_hash($data['code_secret'], PASSWORD_DEFAULT),
-                ':solde' => $data['montant_initial'] ?? 0,
-                ':id_client' => $data['id_client']
-            ]);
+            $result = $stmt->execute($params);
 
             if ($result) {
                 $this->pdo->commit();
+                error_log("Compte créé avec succès");
                 return true;
             }
 
             $this->pdo->rollBack();
+            error_log("Échec de la création");
             return false;
 
         } catch (\PDOException $e) {
-            $this->pdo->rollBack();
-            error_log('Erreur création compte secondaire: ' . $e->getMessage());
+            error_log("ERREUR SQL: " . $e->getMessage());
+            error_log("TRACE: " . $e->getTraceAsString());
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
             return false;
         }
     }
 
-    private function getLastAccountNumber(string $prefix): int
+    public function getLastAccountNumber(string $prefix): int
     {
         try {
-            $query = "SELECT COALESCE(MAX(CAST(SUBSTRING(numero_compte FROM 3) AS INTEGER)), 0)
+            $query = "SELECT COALESCE(MAX(CAST(SUBSTRING(numero, 3) AS INTEGER)), 0)
                       FROM compte 
-                      WHERE numero_compte LIKE :prefix";
+                      WHERE numero LIKE :prefix";
             
             $stmt = $this->pdo->prepare($query);
             $stmt->execute([':prefix' => $prefix . '-%']);
@@ -92,7 +100,12 @@ class CompteRepository implements CompteRepositoryInterface
     public function findByNumero(string $numero): ?Compte
     {
         try {
-            $stmt = $this->pdo->prepare('SELECT * FROM compte WHERE numero_telephone = :numero');
+            $stmt = $this->pdo->prepare('
+                SELECT c.*, u.* 
+                FROM compte c 
+                JOIN users u ON c.id_client = u.id 
+                WHERE c.numero_telephone = :numero
+            ');
             $stmt->execute([':numero' => $numero]);
             $data = $stmt->fetch(\PDO::FETCH_ASSOC);
             
@@ -100,11 +113,27 @@ class CompteRepository implements CompteRepositoryInterface
                 return null;
             }
 
+            // Créer l'utilisateur
+            $user = new \App\Entite\Utilisateur(
+                $data['id_client'],
+                $data['code'],
+                $data['nom'],
+                $data['prenom'],
+                $data['numero'],
+                $data['adresse'],
+                $data['type_user'],
+                $data['photo_identite_recto'],
+                $data['photo_identite_verso'],
+                $data['numero_carte_identite']
+            );
+
             $compte = new Compte();
-            $compte->setId($data['id_compte']);
+            $compte->setId($data['id']);
+            $compte->setNumeroCompte($data['numero_compte']);
             $compte->setNumeroTelephone($data['numero_telephone']);
             $compte->setSolde($data['solde']);
             $compte->setTypeCompte($data['id_type_compte'] === 1 ? TypeCompte::PRINCIPALE : TypeCompte::SECONDAIRE);
+            $compte->setUser($user);
             
             return $compte;
         } catch (\PDOException $e) {
@@ -116,13 +145,32 @@ class CompteRepository implements CompteRepositoryInterface
     public function findByNumeroCompte(string $numeroCompte): ?Compte
     {
         try {
-            $stmt = $this->pdo->prepare('SELECT * FROM compte WHERE numero_compte = :numero_compte');
+            $stmt = $this->pdo->prepare('
+                SELECT c.*, u.* 
+                FROM compte c 
+                JOIN users u ON c.id_client = u.id 
+                WHERE c.numero_compte = :numero_compte
+            ');
             $stmt->execute([':numero_compte' => $numeroCompte]);
             $data = $stmt->fetch(\PDO::FETCH_ASSOC);
             
             if (!$data) {
                 return null;
             }
+
+            // Créer l'utilisateur
+            $user = new \App\Entite\Utilisateur(
+                $data['id_client'],
+                $data['code'],
+                $data['nom'],
+                $data['prenom'],
+                $data['numero'],
+                $data['adresse'],
+                $data['type_user'],
+                $data['photo_identite_recto'],
+                $data['photo_identite_verso'],
+                $data['numero_carte_identite']
+            );
 
             // Créer et hydrater l'objet Compte
             $compte = new Compte();
@@ -131,6 +179,7 @@ class CompteRepository implements CompteRepositoryInterface
             $compte->setNumeroTelephone($data['numero_telephone']);
             $compte->setSolde($data['solde']);
             $compte->setTypeCompte($data['id_type_compte'] === 1 ? TypeCompte::PRINCIPALE : TypeCompte::SECONDAIRE);
+            $compte->setUser($user);
             
             return $compte;
         } catch (\PDOException $e) {

@@ -4,6 +4,7 @@
     "autoload": {
         "psr-4": {
             "Abdoulaye\\MaxitSa\\": "src/",
+            "App\\": "src/",
             "App\\Entite\\": "src/entite/",
             "App\\Service\\": "src/service/",
             "App\\Repository\\": "src/repository/",
