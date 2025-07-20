@@ -30,7 +30,7 @@ class CompteRepository implements CompteRepositoryInterface
 
             $query = "INSERT INTO compte (
                 numero_compte,
-                numero_telephone, 
+                numero_telephone,
                 code_secret, 
                 solde, 
                 est_principal,
@@ -42,9 +42,9 @@ class CompteRepository implements CompteRepositoryInterface
                 :numero_telephone,
                 :code_secret,
                 :solde,
-                false,
+                :est_principal,
                 :id_client,
-                2,
+                :id_type_compte,
                 'Secondaire'
             )";
 
@@ -54,7 +54,9 @@ class CompteRepository implements CompteRepositoryInterface
                 ':numero_telephone' => $numeroTelephone,
                 ':code_secret' => password_hash($data['code_secret'], PASSWORD_DEFAULT),
                 ':solde' => $data['montant_initial'] ?? 0,
+                ':est_principal' => false,
                 ':id_client' => $data['id_client']
+                ':id_type_compte' => 2
             ]);
 
             if ($result) {
@@ -75,7 +77,7 @@ class CompteRepository implements CompteRepositoryInterface
     private function getLastAccountNumber(string $prefix): int
     {
         try {
-            $query = "SELECT COALESCE(MAX(CAST(SUBSTRING(numero_compte FROM 3) AS INTEGER)), 0)
+            $query = "SELECT COALESCE(MAX(CAST(SUBSTRING(numero_compte, 3) AS UNSIGNED)), 0)
                       FROM compte 
                       WHERE numero_compte LIKE :prefix";
             
@@ -101,7 +103,8 @@ class CompteRepository implements CompteRepositoryInterface
             }
 
             $compte = new Compte();
-            $compte->setId($data['id_compte']);
+            $compte->setId($data['id']);
+            $compte->setNumeroCompte($data['numero_compte']);
             $compte->setNumeroTelephone($data['numero_telephone']);
             $compte->setSolde($data['solde']);
             $compte->setTypeCompte($data['id_type_compte'] === 1 ? TypeCompte::PRINCIPALE : TypeCompte::SECONDAIRE);
