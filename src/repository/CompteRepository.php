@@ -55,7 +55,7 @@ class CompteRepository implements CompteRepositoryInterface
                 ':code_secret' => password_hash($data['code_secret'], PASSWORD_DEFAULT),
                 ':solde' => $data['montant_initial'] ?? 0,
                 ':est_principal' => false,
-                ':id_client' => $data['id_client']
+                ':id_client' => $data['id_client'],
                 ':id_type_compte' => 2
             ]);
 
@@ -77,7 +77,7 @@ class CompteRepository implements CompteRepositoryInterface
     private function getLastAccountNumber(string $prefix): int
     {
         try {
-            $query = "SELECT COALESCE(MAX(CAST(SUBSTRING(numero_compte, 3) AS UNSIGNED)), 0)
+            $query = "SELECT COALESCE(MAX(CAST(SUBSTRING(numero_compte FROM 3) AS INTEGER)), 0)
                       FROM compte 
                       WHERE numero_compte LIKE :prefix";
             
@@ -94,7 +94,12 @@ class CompteRepository implements CompteRepositoryInterface
     public function findByNumero(string $numero): ?Compte
     {
         try {
-            $stmt = $this->pdo->prepare('SELECT * FROM compte WHERE numero_telephone = :numero');
+            $stmt = $this->pdo->prepare('
+                SELECT c.*, u.* 
+                FROM compte c 
+                JOIN users u ON c.id_client = u.id 
+                WHERE c.numero_telephone = :numero
+            ');
             $stmt->execute([':numero' => $numero]);
             $data = $stmt->fetch(\PDO::FETCH_ASSOC);
             
@@ -102,12 +107,27 @@ class CompteRepository implements CompteRepositoryInterface
                 return null;
             }
 
+            // Créer l'utilisateur
+            $user = new \App\Entite\Utilisateur(
+                $data['id_client'],
+                $data['code'],
+                $data['nom'],
+                $data['prenom'],
+                $data['numero'],
+                $data['adresse'],
+                $data['type_user'],
+                $data['photo_identite_recto'],
+                $data['photo_identite_verso'],
+                $data['numero_carte_identite']
+            );
+
             $compte = new Compte();
             $compte->setId($data['id']);
             $compte->setNumeroCompte($data['numero_compte']);
             $compte->setNumeroTelephone($data['numero_telephone']);
             $compte->setSolde($data['solde']);
             $compte->setTypeCompte($data['id_type_compte'] === 1 ? TypeCompte::PRINCIPALE : TypeCompte::SECONDAIRE);
+            $compte->setUser($user);
             
             return $compte;
         } catch (\PDOException $e) {
@@ -119,13 +139,32 @@ class CompteRepository implements CompteRepositoryInterface
     public function findByNumeroCompte(string $numeroCompte): ?Compte
     {
         try {
-            $stmt = $this->pdo->prepare('SELECT * FROM compte WHERE numero_compte = :numero_compte');
+            $stmt = $this->pdo->prepare('
+                SELECT c.*, u.* 
+                FROM compte c 
+                JOIN users u ON c.id_client = u.id 
+                WHERE c.numero_compte = :numero_compte
+            ');
             $stmt->execute([':numero_compte' => $numeroCompte]);
             $data = $stmt->fetch(\PDO::FETCH_ASSOC);
             
             if (!$data) {
                 return null;
             }
+
+            // Créer l'utilisateur
+            $user = new \App\Entite\Utilisateur(
+                $data['id_client'],
+                $data['code'],
+                $data['nom'],
+                $data['prenom'],
+                $data['numero'],
+                $data['adresse'],
+                $data['type_user'],
+                $data['photo_identite_recto'],
+                $data['photo_identite_verso'],
+                $data['numero_carte_identite']
+            );
 
             // Créer et hydrater l'objet Compte
             $compte = new Compte();
@@ -134,6 +173,7 @@ class CompteRepository implements CompteRepositoryInterface
             $compte->setNumeroTelephone($data['numero_telephone']);
             $compte->setSolde($data['solde']);
             $compte->setTypeCompte($data['id_type_compte'] === 1 ? TypeCompte::PRINCIPALE : TypeCompte::SECONDAIRE);
+            $compte->setUser($user);
             
             return $compte;
         } catch (\PDOException $e) {
