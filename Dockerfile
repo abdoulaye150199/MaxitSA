@@ -15,12 +15,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Configuration de Nginx
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-RUN rm /etc/nginx/sites-enabled/default
+RUN rm -f /etc/nginx/sites-enabled/default
 
-# Créer les répertoires nécessaires
-RUN mkdir -p /var/log/nginx /run/php && \
+# Créer les répertoires nécessaires et configurer les permissions
+RUN mkdir -p /var/log/nginx /run/php /var/www/html/public/images/uploads && \
     chown -R www-data:www-data /var/log/nginx && \
-    chown -R www-data:www-data /run/php
+    chown -R www-data:www-data /run/php && \
+    chown -R www-data:www-data /var/www/html
 
 # Définition du répertoire de travail
 WORKDIR /var/www/html
@@ -31,12 +32,11 @@ COPY . .
 # Installation des dépendances
 RUN composer install --no-dev --optimize-autoloader
 
-# Permissions pour les dossiers
-RUN chown -R www-data:www-data /var/www/html
-
 # Script de démarrage
-COPY docker/start.sh /usr/local/bin/start.sh
+COPY docker/start.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/start.sh
 
-EXPOSE 9000
+EXPOSE 80
+
+CMD ["/usr/local/bin/start.sh"]
 
