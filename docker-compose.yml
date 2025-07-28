@@ -6,7 +6,8 @@ services:
     build: .
     container_name: maxitsa_php
     volumes:
-      - .:/var/www/html
+      - ./:/var/www/html:delegated
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini:ro
     networks:
       - app-network
 
@@ -17,8 +18,8 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - .:/var/www/html
-      - ./docker/nginx:/etc/nginx/conf.d
+      - ./:/var/www/html:delegated
+      - ./docker/nginx:/etc/nginx/conf.d:ro
     depends_on:
       - php
     networks:
@@ -29,9 +30,9 @@ services:
     image: postgres:15
     container_name: maxitsa_db
     environment:
-      POSTGRES_DB: maxitsa
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: laye1234
+      POSTGRES_DB: ${DB_NAME:-maxitsa}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-laye1234}
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
@@ -42,8 +43,8 @@ services:
     image: dpage/pgadmin4
     container_name: maxitsa_pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: abdoulaye150199@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: laye1234
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-abdoulaye150199@gmail.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-laye1234}
     ports:
       - "5052:80"
     depends_on:
@@ -53,6 +54,7 @@ services:
 
 volumes:
   db-data:
+    driver: local
 
 networks:
   app-network:

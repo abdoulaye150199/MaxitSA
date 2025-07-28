@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: maxitsa
+    env: docker
+    buildCommand: docker build -t maxitsa .
+    startCommand: docker run -p $PORT:80 maxitsa
+    envVars:
+      - key: DB_HOST
+        value: aws-0-eu-west-3.pooler.supabase.com
+      - key: DB_PORT
+        value: 5432
+      - key: DB_NAME
+        value: postgres
+      - key: DB_USER
+        value: postgres.koplwfnyoqkslijoxmkq
+      - key: DB_PASS
+        value: laye1234
