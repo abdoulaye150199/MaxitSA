@@ -1,49 +1,59 @@
-<div class="min-h-screen flex flex-col items-center justify-center bg-white relative">
-    <!-- Logo -->
-    <div class="w-32 h-32 bg-custom-brown rounded-full flex items-center justify-center mx-auto mb-10">
-        <span class="text-white text-2xl font-semibold">MaxItSA</span>
-    </div>
-    
-    <!-- Titre -->
-    <h1 class="text-center text-black text-2xl font-bold mb-10 tracking-wide">
-        Créez votre code
-    </h1>
 
-    <?php if (!empty($errors)): ?>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-full max-w-lg">
-            <ul class="list-disc list-inside">
-                <?php foreach ($errors as $field => $message): ?>
-                    <li><?= htmlspecialchars($message) ?></li>
-                <?php endforeach; ?>
-            </ul>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Création code secret - MaxItSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white">
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <!-- Logo -->
+        <div class="rounded-full bg-[#c4a676] w-32 h-32 flex items-center justify-center mb-8">
+            <span class="text-white text-2xl font-bold">MaxItSA</span>
         </div>
-    <?php endif; ?>
-    
-    <!-- Formulaire -->
-    <form class="space-y-8 w-full max-w-lg" method="post" action="/code-secret">
-        <!-- Champ Code Secret -->
-        <div class="relative">
-            <label class="absolute -top-3 left-4 bg-white px-2 text-custom-brown text-sm font-medium">
-                CRÉER UN CODE
-            </label>
+
+        <!-- Titre -->
+        <h1 class="text-2xl font-bold mb-8 text-center">
+            BIENVENUE SUR VOTRE APPLICATION MAXIT
+        </h1>
+
+        <!-- Message -->
+        <p class="text-center text-gray-600 mb-8">
+            Créez votre code secret à 4 chiffres pour sécuriser votre compte
+        </p>
+
+        <?php if (!empty($errors)): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-full max-w-[500px]">
+                <ul class="list-disc list-inside">
+                    <?php foreach ($errors as $field => $message): ?>
+                        <li><?= htmlspecialchars($message) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <form method="post" action="/code-secret" class="w-full max-w-[500px] flex flex-col items-center gap-6">
             <input 
                 type="password" 
                 name="code_secret"
-                value="<?= htmlspecialchars($_POST['code_secret'] ?? '') ?>"
-                class="w-full border-2 <?= isset($errors['code_secret']) ? 'border-red-500' : 'border-custom-border' ?> rounded-xl bg-custom-light px-4 py-4 text-custom-brown placeholder-custom-border focus:outline-none focus:border-custom-brown transition-colors"
-                placeholder="CRÉER VOTRE CODE SECRET"
+                placeholder="CREEZ VOTRE CODE SECRET"
+                class="border border-[#d4b896] rounded-lg px-6 py-4 w-full text-center text-lg"
                 maxlength="4"
                 pattern="[0-9]{4}"
+                inputmode="numeric"
+                autocomplete="new-password"
                 required
             >
-        </div>
-        
-        <!-- Bouton Créer -->
-        <button 
-            type="submit" 
-            class="w-full bg-custom-brown text-white py-4 rounded-xl text-lg font-semibold hover:bg-opacity-90 transition-all duration-300 mt-8"
-        >
-            CRÉER
-        </button>
-    </form>
-</div>
+
+            <button 
+                type="submit"
+                class="bg-[#c4a676] text-white font-bold rounded-lg px-6 py-4 w-full hover:bg-opacity-90 transition-all"
+            >
+                VALIDER
+            </button>
+        </form>
+    </div>
+</body>
+</html>

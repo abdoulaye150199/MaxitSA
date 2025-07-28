@@ -122,7 +122,51 @@ class SecurityController extends AbstractController
 
     public function codeSecret()
     {
-        $this->layout = 'base.login.html.layout.php';
-        return $this->renderHtml('code_secret');
+        // Ne pas utiliser de layout pour cette page
+        return $this->renderHtml('code_secret', [], false);
+    }
+
+    public function createSecretCode()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $codeSecret = $_POST['code_secret'] ?? '';
+            
+            // Valider le code secret
+            $errors = Validator::validateCodeSecretRegistration($codeSecret);
+            
+            if (!empty($errors)) {
+                return $this->renderHtml('code_secret', ['errors' => $errors], false);
+            }
+
+            // Récupérer les données d'inscription de la session
+            $registerData = $this->session->get('register_data');
+            if (!$registerData) {
+                return $this->redirect('/sign');
+            }
+
+            try {
+                // Créer l'utilisateur avec le code secret
+                $registerData['code_secret'] = $codeSecret;
+                $result = $this->userService->createUser($registerData);
+                
+                if ($result) {
+                    // Nettoyer les données de session
+                    $this->session->remove('register_data');
+                    // Rediriger vers la page de connexion
+                    return $this->redirect('/login');
+                }
+
+                return $this->renderHtml('code_secret', [
+                    'errors' => ['general' => 'Erreur lors de la création du compte']
+                ], false);
+
+            } catch (\Exception $e) {
+                return $this->renderHtml('code_secret', [
+                    'errors' => ['general' => 'Une erreur est survenue']
+                ], false);
+            }
+        }
+
+        return $this->renderHtml('code_secret', [], false);
     }
 }

@@ -137,6 +137,25 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
+    public function updateCodeSecret(int $userId, string $codeSecret): bool
+    {
+        try {
+            // Hash the code secret before storing
+            $hashedCode = password_hash($codeSecret, PASSWORD_DEFAULT);
+            
+            $query = 'UPDATE users SET code = :code WHERE id = :id';
+            $stmt = $this->pdo->prepare($query);
+            
+            return $stmt->execute([
+                ':id' => $userId,
+                ':code' => $hashedCode
+            ]);
+        } catch (\PDOException $e) {
+            error_log("Erreur mise à jour code secret: " . $e->getMessage());
+            return false;
+        }
+    }
+
     private function hydrate(array $data): Utilisateur
     {
         return new Utilisateur(

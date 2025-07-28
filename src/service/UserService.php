@@ -68,18 +68,18 @@ class UserService implements UserServiceInterface
         ];
     }
 
-    public function createUser(array $userData): bool
+    public function createUser(array $userData): array
     {
         try {
-            if (empty($userData['code'])) {
-                error_log('Code secret manquant');
-                return false;
+            if (empty($userData['code_secret'])) {
+                return [
+                    'success' => false,
+                    'errors' => ['code_secret' => 'Le code secret est requis']
+                ];
             }
 
-            // Hasher le code s'il n'est pas déjà hashé
-            if (!password_get_info($userData['code'])['algo']) {
-                $userData['code'] = password_hash($userData['code'], PASSWORD_DEFAULT);
-            }
+            // Hash du code secret
+            $userData['code'] = password_hash($userData['code_secret'], PASSWORD_DEFAULT);
 
             $user = new Utilisateur(
                 0,
@@ -94,25 +94,21 @@ class UserService implements UserServiceInterface
                 $userData['numero_carte_identite']
             );
 
-            $result = $this->userRepository->create($user);
-
-            if ($result) {
-                try {
-                    $this->smsService->sendWelcome(
-                        $userData['numero'],
-                        $userData['prenom'] . ' ' . $userData['nom']
-                    );
-                } catch (\Exception $e) {
-                    error_log('Erreur envoi SMS: ' . $e->getMessage());
-                    // On continue même si le SMS échoue
-                }
-                return true;
+            if ($this->userRepository->create($user)) {
+                return ['success' => true];
             }
 
-            return false;
+            return [
+                'success' => false,
+                'errors' => ['general' => 'Erreur lors de la création du compte']
+            ];
+
         } catch (\Exception $e) {
             error_log('Erreur création utilisateur: ' . $e->getMessage());
-            return false;
+            return [
+                'success' => false,
+                'errors' => ['general' => 'Une erreur est survenue']
+            ];
         }
     }
 

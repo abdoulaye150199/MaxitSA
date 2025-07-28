@@ -148,11 +148,13 @@ function createMySQLTables(PDO $pdo): void {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 }
 
+// Modifier la fonction testDatabaseConnection
 function testDatabaseConnection(string $driver, string $host, string $port, string $user, string $pass, string $dbName = null): array {
     try {
+        // Add SSL mode for Supabase
         $dsn = $dbName 
-            ? "$driver:host=$host;port=$port;dbname=$dbName"
-            : "$driver:host=$host;port=$port";
+            ? "$driver:host=$host;port=$port;dbname=$dbName;sslmode=require"
+            : "$driver:host=$host;port=$port;sslmode=require";
         
         $pdo = new PDO($dsn, $user, $pass, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -168,23 +170,13 @@ function testDatabaseConnection(string $driver, string $host, string $port, stri
 // === Script principal ===
 echo "=== Configuration de la base de données ===\n";
 
-$driver = strtolower(prompt("Quel SGBD utiliser ? (mysql / pgsql) [pgsql] : ")) ?: "pgsql";
-
-if (!in_array($driver, ['mysql', 'pgsql'])) {
-    echo "❌ SGBD non supporté. Utilisez 'mysql' ou 'pgsql'.\n";
-    exit(1);
-}
-
-$host = prompt("Hôte [127.0.0.1] : ") ?: "127.0.0.1";
-$port = prompt("Port [" . ($driver === 'pgsql' ? "5432" : "3306") . "] : ") ?: ($driver === 'pgsql' ? "5432" : "3306");
-$user = prompt("Utilisateur [" . ($driver === 'pgsql' ? "postgres" : "root") . "] : ") ?: ($driver === 'pgsql' ? "postgres" : "root");
-$pass = prompt("Mot de passe : ");
-$dbName = prompt("Nom de la base à créer : ");
-
-if (empty($dbName)) {
-    echo "❌ Le nom de la base de données est obligatoire.\n";
-    exit(1);
-}
+// Dans la section principale, utilisez directement les valeurs de Supabase
+$host = "aws-0-eu-west-3.pooler.supabase.com";
+$port = "5432";
+$user = "postgres.koplwfnyoqkslijoxmkq";
+$pass = "laye1234";
+$dbName = "postgres";
+$driver = "pgsql";
 
 try {
     echo "\n=== Test de connexion au serveur ===\n";

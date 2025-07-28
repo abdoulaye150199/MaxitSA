@@ -23,13 +23,19 @@ abstract class AbstractController {
         $this->session = App::getDependency('session');
     }
 
-    protected function renderHtml(string $view, array $data = []) 
+    protected function renderHtml(string $view, array $data = [], bool $useLayout = true) 
     {
         extract($data);
         ob_start();
         require __DIR__ . '/../../../templates/views/' . $view . '.html.php';
-        $ContentForLayout = ob_get_clean();
-        require __DIR__ . '/../../../templates/layouts/' . $this->layout;
+        $content = ob_get_clean();
+
+        if ($useLayout) {
+            $ContentForLayout = $content;
+            require __DIR__ . '/../../../templates/layouts/' . $this->layout;
+        } else {
+            echo $content;
+        }
     }
 
     public function solde()
