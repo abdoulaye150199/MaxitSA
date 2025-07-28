@@ -5,8 +5,8 @@
 
 
 # Vendor dependencies
-/vendor/
-node_modules/
+# /vendor/
+# node_modules/
 
 # Log files
 *.log
