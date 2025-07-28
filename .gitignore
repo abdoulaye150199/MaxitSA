@@ -7,8 +7,8 @@ STRUCTURATION.txt
 .env
 
 # Dossiers générés
-/vendor/
-/node_modules/
+# /vendor/
+# /node_modules/
 
 
 
