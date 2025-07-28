@@ -1,13 +1,16 @@
 <?php
 
-require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/env.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Core\App;
-use App\Core\Middleware;
+use Dotenv\Dotenv;
 
-// Initialiser l'application
-App::init();
+// Load environment variables from the project root directory
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+try {
+    $dotenv->load();
+} catch (\Dotenv\Exception\InvalidPathException $e) {
+    die('Error: .env file not found. Please create one from .env.example');
+}
 
-// Bootstrap des middlewares
-Middleware::bootstrap();
+// Initialize the application
+App\Core\App::init();
