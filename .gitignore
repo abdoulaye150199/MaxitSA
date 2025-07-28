@@ -1,20 +1,35 @@
-# Fichiers de documentation et notes
-ARCHITECTURE.md
-README.txt
-STRUCTURATION.txt
-
-# Fichiers d'environnement
+# Environment files
 .env
+.env.local
+.env.production
+.env.staging
 
-# Dossiers générés
-# /vendor/
-# /node_modules/
+# Vendor dependencies
+/vendor/
+node_modules/
 
+# Log files
+*.log
+/logs/
 
+# Cache files
+/cache/
+/tmp/
 
+# Database
+*.sqlite
+*.db
 
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
 
+# OS files
+.DS_Store
+Thumbs.db
 
-
-.env
-.env
+# Build files
+/build/
+/dist/.env
