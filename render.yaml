@@ -4,6 +4,7 @@ services:
     env: docker
     buildCommand: docker build -t maxitsa .
     startCommand: docker run -p $PORT:80 maxitsa
+    healthCheckPath: /
     envVars:
       - key: DB_HOST
         value: aws-0-eu-west-3.pooler.supabase.com

@@ -38,6 +38,13 @@ RUN chown -R www-data:www-data /var/www/html
 COPY docker/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
+# Set environment variables
+ENV DB_HOST=aws-0-eu-west-3.pooler.supabase.com \
+    DB_PORT=5432 \
+    DB_NAME=postgres \
+    DB_USER=postgres.koplwfnyoqkslijoxmkq \
+    DB_PASS=laye1234
+
 EXPOSE 80
 
 CMD ["/usr/local/bin/start.sh"]
