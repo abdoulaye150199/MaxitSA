@@ -1,0 +1,61 @@
+version: '3.9'
+
+services:
+  # Service PHP-FPM
+  php:
+    build: .
+    container_name: maxitsa_php
+    volumes:
+      - ./:/var/www/html:delegated
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini:ro
+    networks:
+      - app-network
+
+  # Service Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: maxitsa_nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html:delegated
+      - ./docker/nginx:/etc/nginx/conf.d:ro
+    depends_on:
+      - php
+    networks:
+      - app-network
+
+  # Base de données PostgreSQL
+  db:
+    image: postgres:15
+    container_name: maxitsa_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-maxitsa}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-laye1234}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # PGAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: maxitsa_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-abdoulaye150199@gmail.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-laye1234}
+    ports:
+      - "5052:80"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
