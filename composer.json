@@ -1,0 +1,32 @@
+{
+    "name": "abdoulaye/maxit-sa",
+    "description": "MaxitSa",
+    "autoload": {
+        "psr-4": {
+            "Abdoulaye\\MaxitSa\\": "src/",
+            "App\\": "src/",
+            "App\\Entite\\": "src/entite/",
+            "App\\Service\\": "src/service/",
+            "App\\Repository\\": "src/repository/",
+            "App\\Controller\\": "src/controller/",
+            "App\\config\\": "app/config/",
+            "App\\Core\\": "app/Core/",
+            "App\\Database\\Seeders\\": "database/seeders/",
+            "App\\Database\\Migrations\\": "database/migrations/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Abdoulaye",
+            "email": "abdoulaye150199@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6",
+        "symfony/yaml": "^6.4"
+    },
+    "scripts": {
+        "database:migrate": "php migrations/migration.php",
+        "database:seed": "php seeders/seeder.php"
+    }
+}
