@@ -1,16 +1,26 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-use Dotenv\Dotenv;
+// Configuration directe des variables d'environnement
+define('DB_DSN', "pgsql:host=aws-0-eu-west-3.pooler.supabase.com;port=5432;dbname=postgres");
+define('DB_DRIVER', 'pgsql');
+define('DB_HOST', 'aws-0-eu-west-3.pooler.supabase.com');
+define('DB_PORT', '5432');
+define('DB_NAME', 'postgres');
+define('DB_USER', 'postgres.koplwfnyoqkslijoxmkq');
+define('DB_PASS', 'laye1234');
 
-$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
+// Configuration de l'application
+define('APP_URL', 'http://localhost:8000');
+define('APP_ENV', 'development');
+define('APP_DEBUG', true);
 
-define('DB_DSN', $_ENV['DB_DSN'] ?? '');
-define('DB_HOST', $_ENV['DB_HOST'] ?? '127.0.0.1'); // Changé de HOST à DB_HOST
-define('DB_USER', $_ENV['DB_USER']);
-define('DB_PASS', $_ENV['DB_PASSWORD']);
-define('DB_NAME', $_ENV['DB_NAME'] ?? 'Maxitsa');
-define('DB_PORT', $_ENV['DB_PORT'] ?? '5432');
-define('APP_URL', $_ENV['APP_URL'] ?? 'http://localhost:8000');
+// Configuration des uploads
+define('UPLOAD_MAX_SIZE', 5242880);
+define('ALLOWED_IMAGE_TYPES', 'jpeg,jpg,png,gif,svg');
+
+// Supprimez la partie chargement de .env puisque nous définissons directement les variables
+// require_once __DIR__ . '/../../vendor/autoload.php';
+// use Dotenv\Dotenv;
+// $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+// $dotenv->load();
 
