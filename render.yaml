@@ -1,11 +1,14 @@
 services:
   - type: web
     name: maxitsa
-    env: docker
-    buildCommand: docker build -t maxitsa .
-    startCommand: docker run -p $PORT:80 maxitsa
-    healthCheckPath: /
+    env: php
+    buildCommand: composer install --no-dev
+    startCommand: php -S 0.0.0.0:$PORT -t public/
     envVars:
+      - key: DB_DSN
+        value: "pgsql:host=aws-0-eu-west-3.pooler.supabase.com;port=5432;dbname=postgres"
+      - key: DB_DRIVER
+        value: pgsql  
       - key: DB_HOST
         value: aws-0-eu-west-3.pooler.supabase.com
       - key: DB_PORT
@@ -13,6 +16,10 @@ services:
       - key: DB_NAME
         value: postgres
       - key: DB_USER
-        value: postgres.koplwfnyoqkslijoxmkq
+        fromDatabase:
+          name: maxitsa-db
+          property: user
       - key: DB_PASS
-        value: laye1234
+        fromDatabase:
+          name: maxitsa-db
+          property: laye1234
