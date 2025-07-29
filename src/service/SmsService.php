@@ -13,13 +13,12 @@ class SmsService implements SmsServiceInterface
 
     public function __construct()
     {
-        $this->accountSid = $_ENV['TWILIO_ACCOUNT_SID'] ?? '';
-        $this->authToken = $_ENV['TWILIO_AUTH_TOKEN'] ?? '';
-        $this->fromNumber = $_ENV['TWILIO_FROM_NUMBER'] ?? '';
+        $this->accountSid = $_ENV['TWILIO_ACCOUNT_SID'] ?? getenv('TWILIO_ACCOUNT_SID') ?: '';
+        $this->authToken = $_ENV['TWILIO_AUTH_TOKEN'] ?? getenv('TWILIO_AUTH_TOKEN') ?: '';
+        $this->fromNumber = $_ENV['TWILIO_FROM_NUMBER'] ?? getenv('TWILIO_FROM_NUMBER') ?: '';
 
-        if (empty($this->accountSid) || empty($this->authToken) || empty($this->fromNumber)) {
-            throw new \Exception(ErrorMessages::get('sms_config_missing'));
-        }
+        // Ne pas lever d'exception si les variables Twilio ne sont pas configurées
+        // Le service fonctionnera en mode simulation
     }
 
     public function sendWelcome(string $phoneNumber, string $name): array
@@ -42,6 +41,16 @@ class SmsService implements SmsServiceInterface
 
     private function send(string $to, string $message): array
     {
+        // Si les variables Twilio ne sont pas configurées, simuler l'envoi
+        if (empty($this->accountSid) || empty($this->authToken) || empty($this->fromNumber)) {
+            error_log("SMS simulé vers {$to}: {$message}");
+            return [
+                'success' => true,
+                'sid' => 'sim_' . uniqid(),
+                'status' => 'sent_simulation'
+            ];
+        }
+
         try {
             // Simulation d'envoi SMS - remplacer par l'implémentation Twilio réelle
             $data = [
